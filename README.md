@@ -120,7 +120,7 @@ flowchart TD
 |---|---|---|---|
 | 1 — Kit directo | Técnicos, talleres | Venta de hardware, software incluido | $1,200 MXN/kit |
 | 2 — B2B Cloud | Plantas industriales | Licencia mensual, multi-técnico | $2,500–6,000 MXN/mes |
-| 3 — Tenant aislado | Industria regulada | VPC dedicada en AWS, datos 100% privados | $60,000–120,000 MXN/año |
+| 3 — Tenant aislado | Industria regulada | VPC dedicada en AWS, datos 100% privados | $12,000–20,000 MXN/mes |
 
 > El Tier 3 corre en una VPC dedicada en AWS por cliente, conectada a su red interna vía VPN. Los datos nunca se mezclan con otros clientes.
 

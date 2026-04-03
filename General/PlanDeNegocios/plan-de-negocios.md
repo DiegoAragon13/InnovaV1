@@ -109,12 +109,25 @@ VPC dedicada (solo para ese cliente)
 
 | Concepto | Descripción | Precio estimado |
 |---|---|---|
-| Setup inicial | Configuración de VPC, VPN, RDS, EC2, S3 | $25,000 – $40,000 MXN |
-| Licencia anual | Uso del software + soporte + actualizaciones | $60,000 – $120,000 MXN/año |
+| Setup inicial | Configuración de VPC, VPN, RDS, EC2, S3 | $25,000 – $40,000 MXN (único) |
+| Licencia anual | Uso del software + soporte + actualizaciones | $144,000 – $240,000 MXN/año |
 | Hardware (módulos ESP32) | Por dispositivo | $1,200 MXN/unidad |
-| Infraestructura AWS | EC2 + RDS + S3 + VPN (cobrado al cliente) | ~$150–300 USD/mes |
+| Infraestructura AWS | EC2 + RDS + S3 + VPN (incluida en licencia) | ~$86 USD/mes internos |
 
-> Este tier es el de mayor margen y el más atractivo para industria regulada. El cliente paga la infraestructura AWS directamente o nosotros la facturamos con margen.
+### Justificación del precio de licencia anual
+
+| Concepto | Costo mensual estimado |
+|---|---|
+| Infraestructura AWS (EC2 + RDS + S3 + VPN) | ~$1,720 MXN (~$86 USD) |
+| Soporte técnico y mantenimiento (4 hrs/mes) | ~$4,000 MXN |
+| Actualizaciones de software y modelo IA | ~$2,000 MXN |
+| Costo operativo total | ~$7,720 MXN/mes |
+| **Precio cobrado (plan básico: hasta 10 técnicos)** | **$12,000 MXN/mes ($144,000/año)** |
+| **Precio cobrado (plan avanzado: ilimitado + API)** | **$20,000 MXN/mes ($240,000/año)** |
+| Margen plan básico | ~$4,280 MXN/mes (~55%) |
+| Margen plan avanzado | ~$12,280 MXN/mes (~63%) |
+
+> Para una planta industrial donde un paro de producción cuesta entre $50,000 y $500,000 MXN, una licencia de $12,000/mes se recupera evitando un solo incidente al año.
 
 ---
 
