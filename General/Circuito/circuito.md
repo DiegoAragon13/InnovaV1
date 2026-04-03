@@ -28,9 +28,10 @@
 | 13 | LED indicador | Rojo 5mm | 1 | Cargando batería (señal del TP4056) |
 | 14 | Resistencia limitadora LED | 330Ω | 2 | Protección de LEDs indicadores |
 | 15 | Regulador 3.3V | AMS1117-3.3 | 1 | Alimentar ESP32 y sensores desde la LiPo |
-| 16 | Sondas de prueba | Pogo pin / puntas | 2 | Conexión al circuito bajo prueba (INA219) |
+| 16 | Sondas de prueba | Puntas tipo multímetro | 2 | Conexión al circuito bajo prueba (INA219) — mango plástico con punta metálica fina |
 | 17 | Cables con puntas de prueba | Dupont + punta fina | 2 | Sondas del DS18B20 para puntos específicos |
-| 18 | Cables dupont | M-M / M-F | ~20 | Conexiones en protoboard |
+| 18 | Pinzas caimán | Con cable dupont | 2 | Accesorio para dejar manos libres o cables gruesos |
+| 19 | Cables dupont | M-M / M-F | ~20 | Conexiones en protoboard |
 
 ---
 
@@ -62,10 +63,11 @@ graph TD
     end
 
     subgraph Medicion
-        SONDA1[Sonda + INA] --> INA
-        SONDA2[Sonda - INA] --> INA
+        SONDA1[Punta + multímetro] --> INA
+        SONDA2[Punta - multímetro] --> INA
         DS_S1[Sonda temp. A] --> DS
         DS_S2[Sonda temp. B] --> DS
+        CAIMAN[Pinzas caimán\naccesorio] -.->|alternativa| INA
     end
 
     subgraph Indicadores
