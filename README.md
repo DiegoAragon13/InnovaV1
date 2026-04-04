@@ -28,15 +28,22 @@ El diagnóstico de fallas en circuitos electrónicos es lento, manual y depende 
 
 ```mermaid
 flowchart TD
-    A[Módulo ESP32-S3\nvoltaje · corriente · temperatura · vibración] -->|BLE| B[App Flutter]
-    B --> C[ARGOS detecta componentes\non-device · TFLite]
-    C --> D[Técnico valida y edita\nla lista de componentes]
-    D -->|Lista validada + lecturas| E[Backend FastAPI]
-    E -->|Consulta lecturas · alertas\nhistorial · perfil de voltaje| F[(PostgreSQL)]
-    F -->|Contexto del dispositivo| E
-    E -->|System prompt + contexto + pregunta| G[Ollama LLM\nqwen3.5:9b]
-    G -->|Recomendaciones + chat streaming| E
-    E -->|Respuesta| B
+    ESP[Módulo ESP32-S3\nvoltaje · corriente · temperatura · vibración]
+    APP[App Flutter]
+    ARGOS[ARGOS\nDetección on-device · TFLite]
+    TECNICO[Técnico valida y edita\nla lista de componentes]
+    BACKEND[Backend FastAPI\nRAG · Alertas · Diagnósticos]
+    DB[(PostgreSQL)]
+    LLM[Ollama LLM\nqwen3.5:9b]
+
+    ESP -->|BLE| APP
+    APP --> ARGOS
+    ARGOS --> TECNICO
+    TECNICO -->|Lista validada + lecturas ESP32| BACKEND
+    BACKEND <-->|Lecturas · alertas · historial · perfil| DB
+    BACKEND -->|Contexto + prompt| LLM
+    LLM -->|Recomendaciones · chat streaming| BACKEND
+    BACKEND -->|Respuesta| APP
 ```
 
 ---
