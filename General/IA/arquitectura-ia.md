@@ -36,40 +36,44 @@ flowchart TD
 
 ### Modelo
 - **Base:** YOLOv8n (nano) — versión más ligera, optimizada para móvil
-- **Formato de exportación:** TFLite (para Flutter)
+- **Formato de exportación:** TFLite float32 (para Flutter)
 - **Integración Flutter:** paquete `tflite_flutter`
+- **Archivo:** `Desarollo/Modelo_IA_TensorFlowLite/best_float32.tflite` (12 MB)
+- **Clases:** `Desarollo/Modelo_IA_TensorFlowLite/data.yaml`
 
-### Componentes a detectar (MVP)
-| Componente | Ejemplos |
+### Dataset utilizado
+- **ElectroCom-61 v9** — 61 clases de componentes electrónicos y sensores Arduino (Roboflow Universe, licencia CC BY 4.0)
+- **Dataset de PCB** — componentes en placas de circuito
+- **Total fusionado:** 2,976 imágenes (Train: 2,182 / Val: 553 / Test: 321)
+- **Resolución de entrenamiento:** 512x512
+
+### Resultados del entrenamiento
+| Métrica | Valor |
 |---|---|
-| Resistencia | THT, SMD |
-| Capacitor | Electrolítico, cerámico |
-| LED | 3mm, 5mm, SMD |
-| Transistor | BJT, MOSFET |
-| Circuito integrado | DIP, SOIC |
-| Diodo | Rectificador, Zener |
-| Inductor / Bobina | THT, SMD |
-| Conector | JST, pin header |
+| mAP50 | 0.721 |
+| Precision | 0.758 |
+| Recall | 0.667 |
+| Epochs | 50 |
+| Tiempo | ~26 min (Tesla T4, Google Colab) |
 
-### Dataset
-- **Fuente base:** Roboflow Universe (datasets públicos de componentes electrónicos)
-- **Complemento:** Fotos propias etiquetadas con Roboflow Annotate
-- **Tamaño mínimo recomendado:** 500–1000 imágenes por clase para el MVP
-- **Entrenamiento:** Google Colab (GPU gratuita) con Ultralytics YOLOv8
+### Clases principales detectadas
+`resistor`, `capacitor`, `led`, `transistor`, `ic`, `diode`, `buzzer`, `relay`, `inductor`, `potentiometer`, `switch`, `display`, `Arduino`, `Arduino Mega`, `Esp32`, `Capacitor electrolitico`, `Diodo`, `Driver de motor L298N`, y más.
 
-### Pipeline de entrenamiento
+> Nota: el dataset de PCB tiene clases con nombres numéricos (20-60). Se mapearán a nombres descriptivos en Flutter con un diccionario local.
+
+### Pipeline de entrenamiento (completado)
 ```
-Recolección de imágenes
+Datasets en Roboflow Universe
     ↓
-Etiquetado en Roboflow
+Fusión en proyecto Roboflow (ARGOS v1, versión 2)
     ↓
-Exportar dataset (formato YOLOv8)
+Exportar en formato YOLOv8
     ↓
-Entrenar en Google Colab
+Entrenar en Google Colab (yolov8n.pt base)
     ↓
-Exportar modelo a TFLite
+Exportar a TFLite float32
     ↓
-Integrar en Flutter
+Integrar en Flutter (pendiente)
 ```
 
 ---
@@ -77,61 +81,41 @@ Integrar en Flutter
 ## Módulo 2: LLM para recomendaciones (Ollama)
 
 ### Modelo
-- **MVP (local):** Llama 3.2 3B — corre bien en CPU con 32GB RAM
-- **Alternativa:** Mistral 7B — mejor calidad, requiere más recursos
-- **Aceleración:** OpenVINO de Intel (compatible con Intel Arc)
-- **Producción (AWS):** AWS Bedrock con Claude Haiku o migración de Ollama a EC2
+- **MVP (local):** configurable vía variable de entorno `OLLAMA_MODEL`
+- **Probado con:** `qwen3.5:9b` (instalado en laptop)
+- **Alternativa más rápida:** `llama3.2:3b`, `qwen2.5:3b`
+- **Producción (AWS):** AWS Bedrock (Claude Haiku) o Ollama en EC2
 
 ### Hardware del servidor MVP
 - Laptop con Intel Core Ultra 5 125H
 - GPU Intel Arc (integrada)
 - 32GB RAM
-- Ollama con soporte OpenVINO para aceleración en Arc
+- Ollama corriendo localmente (fuera de Docker)
 
 ### Exposición local
 - **ngrok** para exponer el servidor local a internet durante el MVP
 - La app Flutter usa la URL de ngrok como endpoint
 - En producción se reemplaza por la URL de AWS sin cambiar el código
 
-### Prompt al LLM
-El backend construye un prompt estructurado con los datos del diagnóstico:
+### System prompts implementados
 
+**Diagnóstico:**
 ```
-Eres un sistema experto en mantenimiento preventivo de circuitos electrónicos.
-
-Componentes identificados: [lista]
-Perfil de voltaje: [3.3V / 5V / 12V]
-Lecturas actuales:
-  - Voltaje: X.XV (rango normal: X.X - X.XV)
-  - Corriente: X.XXA (rango normal: X.XX - X.XXA)
-  - Temperatura: XX°C (rango normal: XX - XX°C)
-  - Vibración: X.Xg (rango normal: < X.Xg)
-
-Historial de las últimas N sesiones: [resumen]
-
-Genera un diagnóstico de mantenimiento preventivo indicando:
-1. Estado general del circuito
-2. Componentes en riesgo (si los hay)
-3. Recomendaciones concretas de mantenimiento
-```
-
-### Respuesta estructurada (JSON)
-```json
+Eres un experto en electrónica y mantenimiento de circuitos.
+Analiza los datos del circuito y genera recomendaciones de mantenimiento preventivo en español.
+Responde SIEMPRE en JSON con este formato exacto:
 {
-  "estado_general": "normal | advertencia | critico",
-  "componentes_en_riesgo": ["C3", "R12"],
-  "alertas": [
-    {
-      "tipo": "temperatura",
-      "mensaje": "Temperatura elevada sostenida en zona de capacitores",
-      "severidad": "advertencia"
-    }
-  ],
-  "recomendaciones": [
-    "Revisar capacitor C3 en la próxima sesión de mantenimiento",
-    "Verificar ventilación del circuito"
-  ]
+  "estado_general": "normal|advertencia|critico",
+  "componentes_en_riesgo": ["etiqueta1", "etiqueta2"],
+  "recomendaciones": ["recomendación 1", "recomendación 2"]
 }
+```
+
+**Chat:**
+```
+Eres un asistente técnico experto en electrónica y mantenimiento de circuitos.
+Tienes acceso al historial de lecturas y diagnósticos del dispositivo del usuario.
+Responde en español de forma clara y concisa.
 ```
 
 ---
@@ -162,9 +146,12 @@ Genera un diagnóstico de mantenimiento preventivo indicando:
 
 ## Pendientes
 
-- [ ] Buscar y evaluar datasets de componentes en Roboflow Universe
-- [ ] Definir número mínimo de clases para el MVP
-- [ ] Entrenar primer modelo YOLOv8n en Google Colab
-- [ ] Instalar y probar Ollama con Llama 3.2 3B en la laptop
+- [x] Buscar y evaluar datasets de componentes en Roboflow Universe
+- [x] Entrenar primer modelo YOLOv8n en Google Colab
+- [x] Exportar modelo a TFLite
+- [x] Instalar y probar Ollama en la laptop
+- [ ] Integrar TFLite en Flutter (`tflite_flutter`)
+- [ ] Mapear clases numéricas del dataset PCB a nombres descriptivos en Flutter
+- [ ] Probar integración Ollama con el backend en Docker
 - [ ] Probar aceleración con OpenVINO en Intel Arc
-- [ ] Diseñar esquema de la base de datos PostgreSQL
+- [ ] Evaluar si se necesita reentrenar con más imágenes propias

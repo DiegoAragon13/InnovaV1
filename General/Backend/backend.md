@@ -14,48 +14,54 @@
 
 ---
 
+## Ubicación en el repositorio
+
+```
+Desarollo/backend/
+```
+
 ## Estructura de carpetas
 
 ```
 backend/
 ├── main.py                  # Entrada de la app FastAPI
 ├── config.py                # Variables de entorno (.env)
-├── database.py              # Conexión a PostgreSQL (SQLAlchemy)
+├── database.py              # Conexión a PostgreSQL (SQLAlchemy async)
+├── Dockerfile               # Imagen Docker de la API
+├── docker-compose.yml       # PostgreSQL + API para desarrollo local
+├── .env.example             # Plantilla de variables de entorno
+├── requirements.txt
 ├── models/                  # Modelos ORM (tablas de la DB)
 │   ├── user.py
 │   ├── dispositivo.py
 │   ├── diagnostico.py
 │   ├── componente.py
-│   ├── lectura.py
+│   ├── lectura.py           # Lectura + LecturaHora/Dia/Mes/Anio
 │   ├── alerta.py
 │   ├── recomendacion.py
 │   ├── chat.py
 │   ├── perfil_voltaje.py
 │   └── sesion.py
 ├── routers/                 # Endpoints agrupados por dominio
+│   ├── deps.py              # Dependencia de autenticación compartida
 │   ├── auth.py              # Login, registro, refresh token
 │   ├── dispositivos.py      # CRUD de dispositivos ESP32
 │   ├── diagnosticos.py      # Crear y consultar diagnósticos
 │   ├── lecturas.py          # Recibir y consultar lecturas
 │   ├── alertas.py           # Consultar y marcar alertas
-│   ├── chat.py              # Chat con LLM (streaming)
-│   └── estadisticas.py      # Consultas de agregados
-├── services/                # Lógica de negocio
-│   ├── llm_service.py       # Integración con Ollama
-│   ├── alerta_service.py    # Detección de anomalías
-│   ├── contexto_service.py  # Construcción de contexto para el LLM
-│   └── agregacion_service.py # Jobs de agregación de lecturas
+│   └── chat.py              # Chat con LLM (streaming)
 ├── schemas/                 # Pydantic schemas (validación de datos)
 │   ├── auth.py
 │   ├── dispositivo.py
 │   ├── diagnostico.py
 │   ├── lectura.py
-│   ├── chat.py
-│   └── estadisticas.py
-├── jobs/                    # APScheduler jobs
-│   └── agregacion.py        # Job de agregación hora/día/mes/año
-└── requirements.txt
+│   └── chat.py
+└── services/                # Lógica de negocio
+    ├── llm_service.py       # Integración con Ollama + system prompts
+    └── alerta_service.py    # Detección de anomalías y generación de alertas
 ```
+
+> Pendiente de implementar: `routers/estadisticas.py`, `routers/perfiles.py`, `jobs/agregacion.py`, `services/agregacion_service.py`
 
 ---
 
@@ -207,7 +213,7 @@ Cada día   → Elimina lecturas crudas > 7 días
 
 ```env
 # Base de datos
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/electroscan
 
 # JWT
 JWT_SECRET_KEY=tu_clave_secreta
@@ -215,7 +221,7 @@ JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=30
 
-# Ollama
+# Ollama (local: localhost, Docker: host.docker.internal)
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=llama3.2
 
@@ -225,7 +231,18 @@ FOTO_LOCAL_PATH=./uploads
 # S3_BUCKET=nombre-bucket   # Solo en producción
 ```
 
-> Cambiar `OLLAMA_BASE_URL` y `DATABASE_URL` es todo lo que se necesita para migrar de laptop a AWS.
+> En Docker, `OLLAMA_BASE_URL` debe ser `http://host.docker.internal:11434` para apuntar al Ollama del host.
+
+## Cómo correr en desarrollo
+
+```bash
+cd Desarollo/backend
+docker-compose up --build
+```
+
+La API queda disponible en `http://localhost:8000` y el Swagger en `http://localhost:8000/docs`.
+
+> PostgreSQL corre en el puerto `5433` para no chocar con instalaciones locales.
 
 ---
 
@@ -233,23 +250,43 @@ FOTO_LOCAL_PATH=./uploads
 
 ```
 fastapi
-uvicorn
-sqlalchemy
+uvicorn[standard]
+sqlalchemy[asyncio]
 asyncpg
-pydantic
+pydantic[email]
+pydantic-settings
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt==4.0.1
 ollama
 apscheduler
 python-multipart
 python-dotenv
+alembic
 ```
 
----
+## Estado actual
+
+| Componente | Estado |
+|---|---|
+| Modelos ORM (DB) | ✅ Implementado |
+| Auth (registro, login, refresh, logout) | ✅ Implementado y probado |
+| Dispositivos CRUD | ✅ Implementado y probado |
+| Lecturas (recibir + agregadas) | ✅ Implementado y probado |
+| Alertas (listar + marcar vista) | ✅ Implementado y probado |
+| Diagnósticos | ✅ Implementado y probado |
+| Chat con LLM streaming | ✅ Implementado |
+| LLM service (Ollama) | ✅ Implementado — pendiente probar con modelo activo |
+| Estadísticas | ⏳ Pendiente |
+| Perfiles de voltaje custom | ⏳ Pendiente |
+| Jobs de agregación (APScheduler) | ⏳ Pendiente |
+| Subida de fotos | ⏳ Pendiente |
 
 ## Pendientes
 
-- [ ] Definir SYSTEM_PROMPT base para diagnósticos y chat
-- [ ] Definir umbrales de alerta por perfil de voltaje
-- [ ] Definir cuántos mensajes de historial se incluyen en el contexto del chat
+- [ ] Probar integración con Ollama (modelo activo en laptop)
+- [ ] Implementar `routers/estadisticas.py`
+- [ ] Implementar `routers/perfiles.py`
+- [ ] Implementar jobs de agregación con APScheduler
 - [ ] Esquema de subida de fotos (local para MVP, S3 para producción)
+- [ ] Definir cuántos mensajes de historial se incluyen en el contexto del chat
