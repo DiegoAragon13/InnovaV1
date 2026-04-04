@@ -32,10 +32,10 @@ flowchart TD
     B --> C[ARGOS detecta componentes\non-device · TFLite]
     C --> D[Técnico valida y edita\nla lista de componentes]
     D -->|Lista validada + lecturas| E[Backend FastAPI]
-    E --> F[(PostgreSQL)]
-    E --> G[RAG\nConstruye contexto:\nlecturas · alertas · historial · perfil]
-    G --> H[Ollama LLM\nqwen3.5:9b]
-    H -->|Recomendaciones + chat streaming| E
+    E -->|Consulta lecturas · alertas\nhistorial · perfil de voltaje| F[(PostgreSQL)]
+    F -->|Contexto del dispositivo| E
+    E -->|System prompt + contexto + pregunta| G[Ollama LLM\nqwen3.5:9b]
+    G -->|Recomendaciones + chat streaming| E
     E -->|Respuesta| B
 ```
 
@@ -52,17 +52,17 @@ Modelo YOLOv8n entrenado desde cero para detectar componentes electrónicos dire
 - Detecta: resistencias, capacitores, LEDs, transistores, ICs, diodos, buzzers, relays, módulos Arduino, ESP32, y más
 
 ### RAG — Contexto para el LLM
-Antes de enviar cualquier pregunta al LLM, el backend construye automáticamente un contexto con información real del dispositivo:
+Antes de enviar cualquier pregunta al LLM, el backend consulta la DB y construye automáticamente un contexto con información real del dispositivo:
 
 ```
-Contexto enviado al LLM:
-├── Últimas lecturas eléctricas (voltaje, corriente, temperatura, vibración)
+Backend consulta PostgreSQL y arma el contexto:
+├── Última lectura eléctrica (voltaje, corriente, temperatura, vibración)
 ├── Alertas recientes del dispositivo
-├── Componentes detectados en el último diagnóstico
+├── Últimos N mensajes del historial de chat
 └── Perfil de voltaje configurado (3.3V / 5V / 12V / custom)
 ```
 
-Esto permite que el LLM responda preguntas como "¿por qué está subiendo la temperatura?" con datos reales del circuito, no respuestas genéricas.
+Ese contexto se inyecta como system message antes del prompt del usuario, permitiendo que el LLM responda preguntas como "¿por qué está subiendo la temperatura?" con datos reales del circuito, no respuestas genéricas.
 
 ### Backend — Python + FastAPI
 API REST completamente funcional y dockerizada.
