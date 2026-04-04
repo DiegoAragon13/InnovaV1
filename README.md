@@ -1,4 +1,4 @@
-# [Nombre del proyecto] — Sistema Inteligente de Diagnóstico y Mantenimiento de Placas Electrónicas
+# ElectroScan — Sistema Inteligente de Diagnóstico y Mantenimiento de Placas Electrónicas
 
 > Proyecto para la Cumbre Nacional InnovaTecNM 2026
 > Categoría: Industria Eléctrica y Electrónica
@@ -33,12 +33,14 @@ El técnico conecta el módulo de hardware al circuito, toma una foto con la app
 
 ```mermaid
 flowchart TD
-    A[Módulo ESP32-S3\nSensores: voltaje corriente\ntemperatura vibración] -->|BLE| B[App Flutter\nYOLO on-device]
-    B -->|Foto + datos eléctricos| C[Backend FastAPI\nLaptop → AWS]
-    C -->|Consulta historial| D[(PostgreSQL\nDB)]
-    C -->|Prompt con contexto| E[Ollama LLM\nLlama 3.2 / Mistral]
-    E -->|Recomendaciones + chat| C
-    C -->|Respuesta| B
+    A[Módulo ESP32-S3\nSensores: voltaje corriente\ntemperatura vibración] -->|BLE| B[App Flutter\nARGOS on-device]
+    B --> C[ARGOS detecta componentes\nbounding boxes en la foto]
+    C --> D[Técnico valida y edita\nla lista de componentes]
+    D -->|Lista validada + lecturas ESP32| E[Backend FastAPI\nLaptop → AWS]
+    E -->|Consulta historial| F[(PostgreSQL\nDB)]
+    E -->|Prompt con contexto| G[Ollama LLM\nqwen3.5:9b]
+    G -->|Recomendaciones + chat| E
+    E -->|Respuesta| B
 ```
 
 ---
@@ -55,7 +57,7 @@ flowchart TD
 - Sondas pogo pin para conexión no invasiva al circuito
 
 ### App móvil — Flutter
-- Escaneo de placa con foto + YOLO on-device (TFLite)
+- Escaneo de placa con foto + **ARGOS** on-device (TFLite)
 - Lista editable de componentes detectados
 - Monitor en tiempo real (gauges de voltaje, corriente, temperatura, vibración)
 - Estadísticas con gráficas por rango de tiempo
@@ -63,11 +65,18 @@ flowchart TD
 - Chat con IA contextual (streaming)
 - Conexión BLE al módulo ESP32
 
+### Modelo de visión — ARGOS
+- Basado en YOLOv8n entrenado desde cero
+- Dataset fusionado: ElectroCom-61 + dataset PCB (2,976 imágenes)
+- mAP50: 0.721 | Precision: 0.758 | Recall: 0.667
+- Exportado a TFLite float32 (12 MB) para correr on-device en Flutter
+
 ### Backend — Python + FastAPI
 - API REST para la app
 - Integración con Ollama (LLM local en laptop → AWS Bedrock en producción)
 - Jobs programados para agregación de lecturas (hora/día/mes/año)
 - Autenticación JWT (access + refresh tokens)
+- Dockerizado con PostgreSQL incluido
 
 ### Base de datos — PostgreSQL
 - Usuarios, dispositivos, diagnósticos, componentes detectados
@@ -82,34 +91,39 @@ flowchart TD
 | Capa | Tecnología |
 |---|---|
 | App móvil | Flutter |
-| Visión artificial | YOLOv8n → TFLite (on-device) |
+| Visión artificial | ARGOS (YOLOv8n → TFLite, on-device) |
 | Hardware | ESP32-S3, INA219, MPU6050, DS18B20 |
 | Backend | Python + FastAPI |
-| LLM (MVP) | Ollama + Llama 3.2 3B (laptop local) |
+| LLM (MVP) | Ollama + qwen3.5:9b (laptop local) |
 | LLM (producción) | AWS Bedrock |
 | Base de datos | PostgreSQL |
-| Infraestructura MVP | Laptop + ngrok |
+| Infraestructura MVP | Docker + laptop + ngrok |
 | Infraestructura producción | AWS EC2 + RDS + S3 |
 | Comunicación IoT | BLE (Bluetooth Low Energy) |
 
 ---
 
-## Estructura del repositorio de planificación
+## Estructura del repositorio
 
 ```
-📁 General/
-├── 📁 App/
-│   └── app.md              — Pantallas, navegación, BLE, paquetes Flutter
-├── 📁 Circuito/
-│   └── circuito.md         — Componentes, diagrama, pines, autonomía
-├── 📁 BaseDeDatos/
-│   └── base-de-datos.md    — Esquema PostgreSQL, tablas, índices, estrategia de retención
-└── 📁 PlanDeNegocios/
-    └── plan-de-negocios.md — Modelo de negocio, mercado, escalabilidad, propiedad intelectual
+📁 Desarollo/
+├── 📁 backend/             — API FastAPI (Docker, modelos, routers, servicios)
+└── 📁 Modelo_IA_TensorFlowLite/
+    ├── best_float32.tflite — Modelo ARGOS exportado (ignorado por git, 12MB)
+    └── data.yaml           — Clases del modelo
 
-📁 docs/
-├── Idea del proyecto.md    — Descripción general y stack
-└── comvocatoria            — Convocatoria InnovaTecNM 2026
+📁 General/
+├── 📁 App/                 — Pantallas, navegación, BLE, paquetes Flutter
+├── 📁 Backend/             — Documentación del backend
+├── 📁 BaseDeDatos/         — Esquema PostgreSQL, tablas, índices
+├── 📁 Circuito/            — Componentes, diagrama, pines, autonomía
+├── 📁 Escalabilidad/       — Estrategia de escalado
+├── 📁 IA/                  — Arquitectura del modelo ARGOS y LLM
+└── 📁 PlanDeNegocios/      — Modelo de negocio, mercado, escalabilidad
+
+📁 contextokiro/
+├── Idea del proyecto.md
+└── Convocatoria InnovaTecNM 2026.pdf
 ```
 
 ---
@@ -122,14 +136,14 @@ flowchart TD
 | 2 — B2B Cloud | Plantas industriales | Licencia mensual, multi-técnico | $2,500–6,000 MXN/mes |
 | 3 — Tenant aislado | Industria regulada | VPC dedicada en AWS, datos 100% privados | $12,000–20,000 MXN/mes |
 
-> El Tier 3 corre en una VPC dedicada en AWS por cliente, conectada a su red interna vía VPN. Los datos nunca se mezclan con otros clientes.
-
 ---
+
+## Flujo de uso
 
 ```
 1. Técnico conecta sondas del módulo ESP32 al circuito
 2. Abre la app → toma foto de la placa
-3. YOLO identifica componentes on-device → lista editable
+3. ARGOS identifica componentes on-device → lista editable
 4. Técnico valida la lista
 5. App envía lista + lecturas ESP32 al backend
 6. Backend guarda en DB y consulta LLM con contexto
@@ -140,25 +154,27 @@ flowchart TD
 
 ---
 
-## MVP para InnovaTecNM (Etapa Local)
+## Estado del proyecto
 
-| Componente | Estado MVP |
+| Componente | Estado |
 |---|---|
-| Módulo ESP32 en protoboard | ✅ Planificado |
-| YOLO con 5-8 clases de componentes | ✅ Planificado |
-| App Flutter básica (escanear + monitor + chat) | ✅ Planificado |
-| Backend FastAPI en laptop | ✅ Planificado |
-| Ollama + Llama 3.2 en laptop | ✅ Planificado |
-| PostgreSQL local | ✅ Planificado |
+| Modelo ARGOS (YOLOv8n → TFLite) | ✅ Entrenado y exportado |
+| Backend FastAPI | ✅ Implementado y probado |
+| Base de datos PostgreSQL | ✅ Funcionando en Docker |
+| Autenticación JWT | ✅ Probada |
+| Lecturas + Alertas | ✅ Probadas |
+| Diagnósticos + LLM | ✅ Implementado — pendiente probar con Ollama activo |
+| App Flutter | ⏳ Pendiente |
+| Módulo ESP32 | ⏳ Pendiente |
+| Integración ARGOS en Flutter | ⏳ Pendiente |
 
 ---
 
 ## Pendientes globales
 
-- [ ] Definir nombre final del proyecto
-- [ ] Entrenar modelo YOLOv8n con dataset de componentes
-- [ ] Armar protoboard del módulo ESP32
 - [ ] Desarrollar app Flutter
-- [ ] Desarrollar backend FastAPI
-- [ ] Configurar Ollama en laptop con Intel Arc (OpenVINO)
+- [ ] Integrar ARGOS (TFLite) en Flutter
+- [ ] Armar protoboard del módulo ESP32
+- [ ] Probar integración Ollama con backend
+- [ ] Configurar ngrok para exponer el backend
 - [ ] Preparar pitch y memoria técnica para etapa local
