@@ -1,4 +1,4 @@
-# ElectroScan — Sistema Inteligente de Diagnóstico y Mantenimiento de Placas Electrónicas
+# [Nombre pendiente] — Sistema Inteligente de Diagnóstico y Mantenimiento de Placas Electrónicas
 
 > Proyecto para la Cumbre Nacional InnovaTecNM 2026
 > Categoría: Industria Eléctrica y Electrónica · Tecnologías Emergentes
