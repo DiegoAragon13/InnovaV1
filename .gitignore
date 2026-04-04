@@ -20,3 +20,11 @@ Thumbs.db
 .vscode/
 .idea/
 *.kiro
+
+# Modelos ML (archivos grandes)
+*.tflite
+*.pt
+*.bin
+
+# Docker
+*.log

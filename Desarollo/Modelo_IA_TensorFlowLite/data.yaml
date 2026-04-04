@@ -1,0 +1,86 @@
+names:
+- '20'
+- '21'
+- '22'
+- '23'
+- '24'
+- '25'
+- '26'
+- '27'
+- '28'
+- '29'
+- '30'
+- '31'
+- '32'
+- '33'
+- '34'
+- '35'
+- '36'
+- '37'
+- '38'
+- '39'
+- '40'
+- '41'
+- '42'
+- '43'
+- '44'
+- '45'
+- '46'
+- '47'
+- '48'
+- '49'
+- '50'
+- '51'
+- '52'
+- '53'
+- '54'
+- '55'
+- '56'
+- '57'
+- '58'
+- '59'
+- '60'
+- Arduino
+- Arduino Mega
+- Baterias 9v
+- Baterisa 1.5 v
+- Capacitor
+- Capacitor electrolitico
+- Diodo
+- Driver de motor L298N
+- Esp32
+- Esp32 devmodule
+- Motor DC
+- Protoboard
+- baterias 18650
+- battery
+- button
+- buzzer
+- capacitor
+- clock
+- connector
+- diode
+- display
+- fuse
+- heatsink
+- ic
+- inductor
+- led
+- pads
+- pins
+- potentiometer
+- relay
+- resistor
+- switch
+- transformer
+- transistor
+nc: 75
+roboflow:
+  license: CC BY 4.0
+  project: argos-v1
+  url: https://universe.roboflow.com/diegos-workspace-gobmk/argos-v1/dataset/2
+  version: 2
+  workspace: diegos-workspace-gobmk
+test: ../test/images
+train: ../train/images
+val: ../valid/images
