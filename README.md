@@ -7,7 +7,7 @@
 
 ## ¿Qué es?
 
-ElectroScan es un sistema portátil que combina **visión artificial**, **monitoreo eléctrico en tiempo real** e **IA generativa con RAG** para diagnosticar y dar mantenimiento preventivo a placas electrónicas.
+Sistema portátil que combina **visión artificial**, **monitoreo eléctrico en tiempo real** e **IA generativa con RAG** para diagnosticar y dar mantenimiento preventivo a placas electrónicas.
 
 El técnico conecta el módulo al circuito, toma una foto con la app, y en segundos obtiene:
 - Lista de componentes identificados automáticamente (editable)

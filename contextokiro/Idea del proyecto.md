@@ -1,7 +1,7 @@
 # Sistema Inteligente de Diagnóstico y Mantenimiento de Placas Electrónicas
 
 ## Nombre tentativo
-**ElectroScan** — Sistema IoT con IA para diagnóstico de circuitos electrónicos
+**[Nombre pendiente]** — Sistema IoT con IA para diagnóstico de circuitos electrónicos
 *(nombre final por definir)*
 
 ---
