@@ -1,31 +1,26 @@
 # ElectroScan — Sistema Inteligente de Diagnóstico y Mantenimiento de Placas Electrónicas
 
 > Proyecto para la Cumbre Nacional InnovaTecNM 2026
-> Categoría: Industria Eléctrica y Electrónica
-> Eje transversal: Tecnologías Emergentes · Impacto Social · Sustentabilidad
+> Categoría: Industria Eléctrica y Electrónica · Tecnologías Emergentes
 
 ---
 
 ## ¿Qué es?
 
-Sistema portátil que combina **visión artificial**, **monitoreo eléctrico en tiempo real** e **inteligencia artificial generativa** para diagnosticar y dar mantenimiento preventivo a placas electrónicas.
+ElectroScan es un sistema portátil que combina **visión artificial**, **monitoreo eléctrico en tiempo real** e **IA generativa con RAG** para diagnosticar y dar mantenimiento preventivo a placas electrónicas.
 
-El técnico conecta el módulo de hardware al circuito, toma una foto con la app, y en segundos obtiene:
+El técnico conecta el módulo al circuito, toma una foto con la app, y en segundos obtiene:
 - Lista de componentes identificados automáticamente (editable)
 - Lecturas de voltaje, corriente, temperatura y vibración en tiempo real
 - Alertas preventivas antes de que ocurra una falla
-- Recomendaciones de mantenimiento generadas por un LLM
+- Recomendaciones de mantenimiento generadas por un LLM con contexto real del dispositivo
 - Chat contextual para hacer preguntas sobre el estado del circuito
 
 ---
 
-## ¿Para quién?
+## El problema que resuelve
 
-| Usuario | Beneficio |
-|---|---|
-| Técnico industrial | Diagnóstico rápido, documentado y sin depender solo de su experiencia |
-| Jefe de mantenimiento | Alertas preventivas que evitan paros no planeados |
-| Estudiante de electrónica | Herramienta educativa que identifica y explica componentes |
+El diagnóstico de fallas en circuitos electrónicos es lento, manual y depende de la experiencia del técnico. En entornos industriales, una falla no detectada a tiempo puede generar paros de producción con pérdidas de $50,000–$500,000 MXN. No existe una herramienta accesible que combine identificación visual de componentes con monitoreo eléctrico en una sola solución portátil.
 
 ---
 
@@ -33,13 +28,14 @@ El técnico conecta el módulo de hardware al circuito, toma una foto con la app
 
 ```mermaid
 flowchart TD
-    A[Módulo ESP32-S3\nSensores: voltaje corriente\ntemperatura vibración] -->|BLE| B[App Flutter\nARGOS on-device]
-    B --> C[ARGOS detecta componentes\nbounding boxes en la foto]
+    A[Módulo ESP32-S3\nvoltaje · corriente · temperatura · vibración] -->|BLE| B[App Flutter]
+    B --> C[ARGOS detecta componentes\non-device · TFLite]
     C --> D[Técnico valida y edita\nla lista de componentes]
-    D -->|Lista validada + lecturas ESP32| E[Backend FastAPI\nLaptop → AWS]
-    E -->|Consulta historial| F[(PostgreSQL\nDB)]
-    E -->|Prompt con contexto| G[Ollama LLM\nqwen3.5:9b]
-    G -->|Recomendaciones + chat| E
+    D -->|Lista validada + lecturas| E[Backend FastAPI]
+    E --> F[(PostgreSQL)]
+    E --> G[RAG\nConstruye contexto:\nlecturas · alertas · historial · perfil]
+    G --> H[Ollama LLM\nqwen3.5:9b]
+    H -->|Recomendaciones + chat streaming| E
     E -->|Respuesta| B
 ```
 
@@ -47,42 +43,53 @@ flowchart TD
 
 ## Componentes del sistema
 
-### Hardware — Módulo ESP32-S3
-- Microcontrolador ESP32-S3
-- INA219 — voltaje y corriente (hasta 26V)
-- DS18B20 — temperatura (con sondas a puntos específicos)
-- MPU6050 — vibración y aceleración
-- OLED 0.96" SSD1306 — pantalla local
-- TP4056 + LiPo 2000mAh — alimentación portátil (~6h autonomía)
-- Sondas pogo pin para conexión no invasiva al circuito
+### ARGOS — Modelo de visión artificial (on-device)
+Modelo YOLOv8n entrenado desde cero para detectar componentes electrónicos directamente en el celular, sin necesidad de conexión al servidor.
+
+- Dataset: ElectroCom-61 + dataset PCB fusionados en Roboflow (2,976 imágenes)
+- Resultados: mAP50 = 0.721 · Precision = 0.758 · Recall = 0.667
+- Exportado a TFLite float32 (12 MB) para Flutter con `tflite_flutter`
+- Detecta: resistencias, capacitores, LEDs, transistores, ICs, diodos, buzzers, relays, módulos Arduino, ESP32, y más
+
+### RAG — Contexto para el LLM
+Antes de enviar cualquier pregunta al LLM, el backend construye automáticamente un contexto con información real del dispositivo:
+
+```
+Contexto enviado al LLM:
+├── Últimas lecturas eléctricas (voltaje, corriente, temperatura, vibración)
+├── Alertas recientes del dispositivo
+├── Componentes detectados en el último diagnóstico
+└── Perfil de voltaje configurado (3.3V / 5V / 12V / custom)
+```
+
+Esto permite que el LLM responda preguntas como "¿por qué está subiendo la temperatura?" con datos reales del circuito, no respuestas genéricas.
+
+### Backend — Python + FastAPI
+API REST completamente funcional y dockerizada.
+
+- Auth JWT (access 30min + refresh 30 días)
+- Recepción de lecturas del ESP32 con evaluación automática de alertas
+- Diagnósticos con integración al LLM vía Ollama
+- Chat con streaming (respuesta palabra por palabra)
+- Serie de tiempo de lecturas con agregados por hora/día/mes/año
+- PostgreSQL con SQLAlchemy async
 
 ### App móvil — Flutter
-- Escaneo de placa con foto + **ARGOS** on-device (TFLite)
-- Lista editable de componentes detectados
-- Monitor en tiempo real (gauges de voltaje, corriente, temperatura, vibración)
+- Escaneo de placa con ARGOS on-device
+- Lista editable de componentes detectados (el técnico puede corregir, agregar o eliminar)
+- Monitor en tiempo real con gauges (voltaje, corriente, temperatura, vibración)
 - Estadísticas con gráficas por rango de tiempo
 - Historial de diagnósticos
 - Chat con IA contextual (streaming)
 - Conexión BLE al módulo ESP32
 
-### Modelo de visión — ARGOS
-- Basado en YOLOv8n entrenado desde cero
-- Dataset fusionado: ElectroCom-61 + dataset PCB (2,976 imágenes)
-- mAP50: 0.721 | Precision: 0.758 | Recall: 0.667
-- Exportado a TFLite float32 (12 MB) para correr on-device en Flutter
-
-### Backend — Python + FastAPI
-- API REST para la app
-- Integración con Ollama (LLM local en laptop → AWS Bedrock en producción)
-- Jobs programados para agregación de lecturas (hora/día/mes/año)
-- Autenticación JWT (access + refresh tokens)
-- Dockerizado con PostgreSQL incluido
-
-### Base de datos — PostgreSQL
-- Usuarios, dispositivos, diagnósticos, componentes detectados
-- Serie de tiempo de lecturas con agregados por granularidad
-- Historial de chat por dispositivo
-- Perfiles de voltaje personalizados con rangos para el LLM
+### Hardware — Módulo ESP32-S3
+- INA219 — voltaje y corriente (hasta 26V)
+- DS18B20 — temperatura
+- MPU6050 — vibración y aceleración
+- OLED 0.96" SSD1306 — pantalla local sin necesidad del celular
+- Sondas pogo pin para conexión no invasiva al circuito
+- Alimentación portátil con LiPo (~6h autonomía)
 
 ---
 
@@ -91,66 +98,14 @@ flowchart TD
 | Capa | Tecnología |
 |---|---|
 | App móvil | Flutter |
-| Visión artificial | ARGOS (YOLOv8n → TFLite, on-device) |
+| Visión artificial | ARGOS — YOLOv8n → TFLite (on-device) |
 | Hardware | ESP32-S3, INA219, MPU6050, DS18B20 |
 | Backend | Python + FastAPI |
-| LLM (MVP) | Ollama + qwen3.5:9b (laptop local) |
-| LLM (producción) | AWS Bedrock |
-| Base de datos | PostgreSQL |
+| RAG / LLM | Ollama + qwen3.5:9b (MVP local) → AWS Bedrock (producción) |
+| Base de datos | PostgreSQL (SQLAlchemy async) |
 | Infraestructura MVP | Docker + laptop + ngrok |
 | Infraestructura producción | AWS EC2 + RDS + S3 |
 | Comunicación IoT | BLE (Bluetooth Low Energy) |
-
----
-
-## Estructura del repositorio
-
-```
-📁 Desarollo/
-├── 📁 backend/             — API FastAPI (Docker, modelos, routers, servicios)
-└── 📁 Modelo_IA_TensorFlowLite/
-    ├── best_float32.tflite — Modelo ARGOS exportado (ignorado por git, 12MB)
-    └── data.yaml           — Clases del modelo
-
-📁 General/
-├── 📁 App/                 — Pantallas, navegación, BLE, paquetes Flutter
-├── 📁 Backend/             — Documentación del backend
-├── 📁 BaseDeDatos/         — Esquema PostgreSQL, tablas, índices
-├── 📁 Circuito/            — Componentes, diagrama, pines, autonomía
-├── 📁 Escalabilidad/       — Estrategia de escalado
-├── 📁 IA/                  — Arquitectura del modelo ARGOS y LLM
-└── 📁 PlanDeNegocios/      — Modelo de negocio, mercado, escalabilidad
-
-📁 contextokiro/
-├── Idea del proyecto.md
-└── Convocatoria InnovaTecNM 2026.pdf
-```
-
----
-
-## Modelo de negocio
-
-| Tier | Para quién | Modelo | Precio referencia |
-|---|---|---|---|
-| 1 — Kit directo | Técnicos, talleres | Venta de hardware, software incluido | $1,200 MXN/kit |
-| 2 — B2B Cloud | Plantas industriales | Licencia mensual, multi-técnico | $2,500–6,000 MXN/mes |
-| 3 — Tenant aislado | Industria regulada | VPC dedicada en AWS, datos 100% privados | $12,000–20,000 MXN/mes |
-
----
-
-## Flujo de uso
-
-```
-1. Técnico conecta sondas del módulo ESP32 al circuito
-2. Abre la app → toma foto de la placa
-3. ARGOS identifica componentes on-device → lista editable
-4. Técnico valida la lista
-5. App envía lista + lecturas ESP32 al backend
-6. Backend guarda en DB y consulta LLM con contexto
-7. LLM genera recomendaciones de mantenimiento
-8. App muestra resultados, alertas y permite chatear con la IA
-9. Técnico guarda el diagnóstico en el historial
-```
 
 ---
 
@@ -159,14 +114,65 @@ flowchart TD
 | Componente | Estado |
 |---|---|
 | Modelo ARGOS (YOLOv8n → TFLite) | ✅ Entrenado y exportado |
-| Backend FastAPI | ✅ Implementado y probado |
-| Base de datos PostgreSQL | ✅ Funcionando en Docker |
-| Autenticación JWT | ✅ Probada |
-| Lecturas + Alertas | ✅ Probadas |
-| Diagnósticos + LLM | ✅ Implementado — pendiente probar con Ollama activo |
+| Backend FastAPI completo | ✅ Implementado y probado |
+| Auth JWT | ✅ Probado |
+| Lecturas + Alertas automáticas | ✅ Probadas |
+| Diagnósticos + RAG + LLM | ✅ Implementado — pendiente probar con Ollama activo |
+| Chat streaming | ✅ Implementado |
 | App Flutter | ⏳ Pendiente |
 | Módulo ESP32 | ⏳ Pendiente |
 | Integración ARGOS en Flutter | ⏳ Pendiente |
+
+---
+
+## Estructura del repositorio
+
+```
+📁 Desarollo/
+├── 📁 backend/                     — API FastAPI (Docker listo para correr)
+│   ├── main.py
+│   ├── docker-compose.yml
+│   ├── .env.example
+│   ├── models/                     — ORM (usuarios, dispositivos, lecturas, etc.)
+│   ├── routers/                    — Endpoints (auth, dispositivos, lecturas, chat...)
+│   ├── schemas/                    — Validación Pydantic
+│   └── services/                   — Lógica de negocio (LLM, alertas)
+└── 📁 Modelo_IA_TensorFlowLite/
+    └── data.yaml                   — Clases del modelo ARGOS
+
+📁 General/                         — Documentación de diseño
+├── App/                            — Pantallas, navegación, BLE
+├── Backend/                        — Endpoints, servicios, DB
+├── BaseDeDatos/                    — Esquema PostgreSQL completo
+├── Circuito/                       — Hardware ESP32, sensores, pines
+├── Escalabilidad/                  — Arquitectura AWS por etapas
+├── IA/                             — ARGOS + RAG + LLM
+└── PlanDeNegocios/                 — Modelo de negocio, mercado, roadmap
+```
+
+---
+
+## Cómo correr el backend
+
+```bash
+cd Desarollo/backend
+cp .env.example .env
+docker-compose up --build
+```
+
+API disponible en `http://localhost:8000` · Swagger en `http://localhost:8000/docs`
+
+> Requiere Docker. PostgreSQL corre en el puerto 5433. Para el LLM, tener Ollama corriendo localmente.
+
+---
+
+## Modelo de negocio
+
+| Tier | Para quién | Modelo |
+|---|---|---|
+| Kit directo | Técnicos, talleres | Venta de hardware, software incluido |
+| B2B Cloud | Plantas industriales | Licencia mensual multi-técnico |
+| On-Premise | Industria regulada | VPC dedicada en AWS, datos 100% privados |
 
 ---
 
@@ -176,5 +182,6 @@ flowchart TD
 - [ ] Integrar ARGOS (TFLite) en Flutter
 - [ ] Armar protoboard del módulo ESP32
 - [ ] Probar integración Ollama con backend
-- [ ] Configurar ngrok para exponer el backend
+- [ ] Configurar ngrok para demo
 - [ ] Preparar pitch y memoria técnica para etapa local
+- [ ] Definir nombre final / branding
