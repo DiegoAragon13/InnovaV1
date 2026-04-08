@@ -183,7 +183,19 @@ API disponible en `http://localhost:8000` · Swagger en `http://localhost:8000/d
 
 ---
 
-## Pendientes globales
+## Concurso — InnovaTecNM 2026
+
+Evento: Certamen de Proyectos · Categoría 2: Industria Eléctrica y Electrónica
+
+Entregables requeridos por etapa:
+
+| Etapa | Documentos | Demo |
+|---|---|---|
+| Local | Ficha Técnica + Memoria Técnica + Modelo de Negocios | Prototipo funcional o prueba de concepto |
+| Regional | Memoria Técnica actualizada + Plan de Negocios | Prototipo + video de funcionamiento |
+| Nacional | Memoria Técnica + Plan de Negocios actualizados | Prototipo físico en stand (obligatorio) |
+
+> El prototipo físico es obligatorio desde etapa regional. No presentarlo = descalificación en nacional.
 
 - [ ] Desarrollar app Flutter
 - [ ] Integrar ARGOS (TFLite) en Flutter
@@ -191,4 +203,14 @@ API disponible en `http://localhost:8000` · Swagger en `http://localhost:8000/d
 - [ ] Probar integración Ollama con backend
 - [ ] Configurar ngrok para demo
 - [ ] Preparar pitch y memoria técnica para etapa local
+- [ ] Definir nombre final / branding
+
+## Pendientes globales
+
+- [ ] Desarrollar app Flutter
+- [ ] Integrar ARGOS (TFLite) en Flutter
+- [ ] Armar protoboard del módulo ESP32
+- [ ] Probar integración Ollama con backend
+- [ ] Configurar ngrok para demo
+- [ ] Preparar Memoria Técnica y Modelo de Negocios para etapa local
 - [ ] Definir nombre final / branding
