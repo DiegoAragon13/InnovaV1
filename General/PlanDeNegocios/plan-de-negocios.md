@@ -142,7 +142,29 @@ VPC dedicada (solo para ese cliente)
 
 ---
 
-## 6. Ventaja competitiva
+## 6. Análisis competitivo
+
+### Multímetro tradicional
+Un multímetro mide en el momento. No guarda historial, no detecta tendencias, no identifica componentes, no genera alertas. El técnico decide manualmente si la lectura es normal o no. **Un multímetro mide, este sistema predice.**
+
+### Fracttal (CMMS con IoT)
+Fracttal es un sistema de gestión de mantenimiento (CMMS) con sus propios dispositivos IoT (Fracttal Sense, Fracttal Box). Monitorea maquinaria industrial grande: motores, bombas, compresores. Empieza en $195 USD/mes solo de software, sin hardware incluido.
+
+| Aspecto | Fracttal | Este sistema |
+|---|---|---|
+| Enfoque | Gestión de mantenimiento (órdenes, calendarios, técnicos) | Diagnóstico de placas electrónicas |
+| Hardware | Sensores para maquinaria industrial fija | Dispositivo portátil para cualquier placa |
+| Visión artificial | No | Sí — ARGOS identifica componentes |
+| LLM | No | Sí — cruza componentes + lecturas y recomienda |
+| Portabilidad | Instalación fija | Lo llevas a cualquier tablero o panel |
+| Precio entrada | $195 USD/mes + hardware industrial | $1,200 MXN kit completo |
+| Mercado | Plantas con presupuesto de infraestructura | Técnicos, talleres, industria mediana |
+
+**Relación con Fracttal:** son complementarios. En una planta industrial, Fracttal gestiona las órdenes de trabajo y este dispositivo hace el diagnóstico electrónico de las tarjetas y PLCs. Un argumento de venta para Tier 2 y 3: "integrable con tu CMMS actual".
+
+---
+
+## 7. Ventaja competitiva
 
 - No existe en el mercado una solución que combine visión artificial + monitoreo eléctrico + LLM en un solo dispositivo portátil accesible
 - Enfoque preventivo vs reactivo: el sistema anticipa fallas, no solo las detecta
@@ -151,7 +173,7 @@ VPC dedicada (solo para ese cliente)
 
 ---
 
-## 7. Ejes transversales InnovaTecNM
+## 8. Ejes transversales InnovaTecNM
 
 ### Tecnologías Emergentes
 - Visión artificial con YOLOv8 on-device
@@ -171,7 +193,7 @@ VPC dedicada (solo para ese cliente)
 
 ---
 
-## 8. Estrategia de propiedad intelectual
+## 9. Estrategia de propiedad intelectual
 
 *(Requerida para etapa nacional)*
 
@@ -184,7 +206,7 @@ VPC dedicada (solo para ese cliente)
 
 ---
 
-## 9. Escalabilidad
+## 10. Escalabilidad
 
 ```
 MVP (Competencia)          →    V1.0 B2B Cloud          →    On-Premise Enterprise
@@ -197,7 +219,7 @@ Ollama local                →    AWS Bedrock             →    Ollama en serv
 
 ---
 
-## 10. Roadmap
+## 11. Roadmap
 
 | Fase | Periodo | Hitos |
 |---|---|---|
