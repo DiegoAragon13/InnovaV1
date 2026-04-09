@@ -177,11 +177,15 @@ API disponible en `http://localhost:8000` · Swagger en `http://localhost:8000/d
 
 ## Modelo de negocio
 
+El modelo principal es venta de hardware con margen. El técnico compra el dispositivo y el software va incluido sin costo adicional. Para empresas con múltiples técnicos aplica una licencia mensual. Para industria regulada que no puede mandar datos fuera de sus instalaciones, se ofrece un entorno completamente aislado en AWS.
+
 | Tier | Para quién | Modelo |
 |---|---|---|
 | Kit directo | Técnicos, talleres | Venta de hardware, software incluido |
 | B2B Cloud | Plantas industriales | Licencia mensual multi-técnico |
 | On-Premise | Industria regulada | VPC dedicada en AWS, datos 100% privados |
+
+> Una planta que evita un solo paro de producción recupera el costo anual del plan en minutos. Ver `General/PlanDeNegocios/plan-de-negocios.md` para el desglose completo.
 
 ---
 
