@@ -6,7 +6,6 @@
 
 | Función | Paquete Flutter |
 |---|---|
-| Conexión BLE al ESP32 | `flutter_blue_plus` |
 | Modelo YOLO on-device | `tflite_flutter` |
 | Gráficas y estadísticas | `fl_chart` |
 | Navegación | `go_router` |
@@ -14,6 +13,8 @@
 | HTTP / API calls | `dio` |
 | Almacenamiento local | `hive` |
 | Streaming de chat | `dio` (stream mode) |
+
+> BLE (`flutter_blue_plus`) queda como feature futuro. Para el MVP el ESP32 envía lecturas directo al backend por WiFi.
 
 ---
 
@@ -68,13 +69,20 @@ flowchart TD
 6. Navega a pantalla de Recomendaciones con los resultados
 
 ### Monitor en Tiempo Real
-- Lecturas en vivo desde el ESP32 vía BLE:
+- Lecturas en vivo desde el backend (ESP32 envía por WiFi):
   - Voltaje (gauge circular)
   - Corriente (gauge circular)
   - Temperatura (gauge circular)
   - Vibración (indicador numérico + alerta visual)
 - Indicador de estado: Normal / Advertencia / Crítico
 - Botón para iniciar/detener monitoreo
+
+### Configuración de voltaje esperado
+Antes de iniciar el monitoreo, el técnico puede:
+- Seleccionar perfil conocido: 3.3V / 5V / 12V / Personalizado
+- O dejar en "Auto" → el sistema toma las primeras 20 lecturas como baseline y las usa como referencia normal
+
+> Si el técnico no sabe el voltaje de la placa, el modo Auto detecta desviaciones respecto al comportamiento inicial sin necesidad de configuración.
 
 ### Estadísticas
 - Selector de dispositivo y rango de fechas
@@ -126,50 +134,22 @@ Mini chat contextual donde el técnico puede hacer preguntas sobre el dispositiv
 - Opción para renombrar o eliminar un dispositivo
 
 ### Ajustes (menú hamburguesa)
-- Perfil de voltaje por defecto: 3.3V / 5V / 12V / Personalizado
+- Perfil de voltaje por defecto: Auto / 3.3V / 5V / 12V / Personalizado
 - Unidades de temperatura: °C / °F
 - Notificaciones push: activar/desactivar alertas
 - URL del servidor (para cambiar entre local y producción)
 
 ---
 
-## Conexión BLE con ESP32-S3
+## Comunicación con el ESP32
 
-### Flujo de vinculación (primera vez)
-```mermaid
-sequenceDiagram
-    participant App
-    participant ESP32
+El ESP32 envía lecturas directamente al backend por WiFi. La app solo consulta al backend, no al ESP32.
 
-    App->>App: Inicia escaneo BLE
-    App->>ESP32: Descubre dispositivo
-    App->>ESP32: Solicita conexión
-    ESP32-->>App: Acepta conexión
-    App->>ESP32: Lee características BLE
-    App->>App: Guarda dispositivo en Mis Dispositivos
+```
+ESP32 → WiFi → Backend → App
 ```
 
-### Flujo de lectura de datos
-```mermaid
-sequenceDiagram
-    participant App
-    participant ESP32
-
-    App->>ESP32: Conecta por BLE
-    ESP32-->>App: Notificaciones cada 1 segundo
-    Note over ESP32,App: voltaje, corriente, temperatura, vibración
-    App->>App: Actualiza UI en tiempo real
-    App->>Backend: Envía datos para análisis
-```
-
-### Características BLE del ESP32
-| Característica | UUID | Tipo | Datos |
-|---|---|---|---|
-| Voltaje | `0x2B18` | Notify | Float (V) |
-| Corriente | `0x2AEE` | Notify | Float (A) |
-| Temperatura | `0x2A6E` | Notify | Float (°C) |
-| Vibración | Custom UUID | Notify | Float (g) |
-| Perfil voltaje | Custom UUID | Write | String (3.3/5/12/custom) |
+BLE queda como feature futuro para entornos sin WiFi disponible.
 
 ---
 

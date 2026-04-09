@@ -154,7 +154,57 @@ El perfil se selecciona desde la app. El hardware no cambia, solo cambian los um
 
 ---
 
+## Comunicación ESP32 → Backend
+
+El ESP32 envía las lecturas directamente al backend por **WiFi** (HTTP POST cada segundo). La app consulta las lecturas al backend, no al ESP32 directamente. BLE queda como feature futuro para entornos sin WiFi.
+
+```
+ESP32-S3
+   ↓ WiFi (HTTP POST /lecturas cada 1s)
+Backend FastAPI
+   ↓
+PostgreSQL
+   ↓
+App Flutter (consulta al backend)
+```
+
+---
+
+## Cómo conectar las sondas al circuito bajo prueba
+
+El INA219 se conecta **en serie** en la línea de alimentación de la placa. La corriente de operación pasa por él y lo mide.
+
+```
+Fuente de poder / VCC externo
+         |
+      [VIN+ INA219]
+      [VIN- INA219]
+         |
+   Placa bajo prueba (VCC)
+         |
+        GND
+```
+
+**Regla práctica:** conectar en el punto donde entra la alimentación de operación, no donde se carga una batería.
+
+**Aplica para:** Arduino, ESP32, PCBs industriales con barrel jack o conector de poder, cualquier placa con fuente externa.
+
+**No aplica para:** baterías cargándose (la corriente va hacia la batería, no hacia el circuito).
+
+### Perfil de voltaje — baseline automático
+
+Si el técnico no conoce el voltaje nominal de la placa:
+- Las primeras 20 lecturas se usan como **baseline** (estado normal)
+- El sistema calcula el promedio y lo usa como referencia para detectar desviaciones
+- El técnico puede corregirlo manualmente desde la app en cualquier momento
+
+Si el técnico sí conoce el voltaje:
+- Selecciona el perfil (3.3V / 5V / 12V / Personalizado) antes de iniciar
+
+
+
 ## Pendientes
 
 - [ ] Esquemático visual en Fritzing
-- [ ] Definir bateria LiPo y agregar en la lista de componentes
+- [ ] Definir batería LiPo final y agregar en lista de componentes
+- [ ] Implementar lógica de baseline automático en firmware ESP32

@@ -30,13 +30,13 @@ El diagnóstico de fallas en circuitos electrónicos es lento, manual y depende 
 flowchart TD
     ESP[Módulo ESP32-S3\nvoltaje · corriente · temperatura · vibración]
     APP[App Flutter]
-    ARGOS[ARGOS\nDetección on-device · TFLite]
-    TECNICO[Técnico valida y edita\nla lista de componentes]
+    ARGOS[ARGOS — Detección on-device · TFLite]
+    TECNICO[Técnico valida y edita la lista de componentes]
     BACKEND[Backend FastAPI\nRAG · Alertas · Diagnósticos]
     DB[(PostgreSQL)]
     LLM[Ollama LLM\nqwen3.5:9b]
 
-    ESP -->|BLE| APP
+    ESP -->|WiFi| APP
     APP --> ARGOS
     ARGOS --> TECNICO
     TECNICO -->|Lista validada + lecturas ESP32| BACKEND
@@ -51,7 +51,7 @@ flowchart TD
 ## Componentes del sistema
 
 ### ARGOS — Modelo de visión artificial (on-device)
-Modelo YOLOv8n entrenado desde cero para detectar componentes electrónicos directamente en el celular, sin necesidad de conexión al servidor.
+Modelo YOLOv8n entrenado desde cero para detectar componentes electrónicos directamente en el celular, sin necesidad de conexión al servidor. El nombre viene de Argos Panoptes, el gigante de la mitología griega con cien ojos que todo lo veía — igual que el modelo, que "ve" y reconoce cada componente en la placa.
 
 - Dataset: ElectroCom-61 + dataset PCB fusionados en Roboflow (2,976 imágenes)
 - Resultados: mAP50 = 0.721 · Precision = 0.758 · Recall = 0.667
@@ -85,18 +85,20 @@ API REST completamente funcional y dockerizada.
 - Escaneo de placa con ARGOS on-device
 - Lista editable de componentes detectados (el técnico puede corregir, agregar o eliminar)
 - Monitor en tiempo real con gauges (voltaje, corriente, temperatura, vibración)
+- Configuración de voltaje esperado: perfil manual (3.3V/5V/12V/custom) o modo Auto (baseline de primeras 20 lecturas)
 - Estadísticas con gráficas por rango de tiempo
 - Historial de diagnósticos
 - Chat con IA contextual (streaming)
-- Conexión BLE al módulo ESP32
+- Conexión al módulo ESP32 vía WiFi (BLE como feature futuro)
 
 ### Hardware — Módulo ESP32-S3
-- INA219 — voltaje y corriente (hasta 26V)
-- DS18B20 — temperatura
+- INA219 — voltaje y corriente (hasta 26V), conectado en serie en la línea de alimentación de la placa
+- DS18B20 — temperatura, apoyado sobre la zona caliente del circuito
 - MPU6050 — vibración y aceleración
 - OLED 0.96" SSD1306 — pantalla local sin necesidad del celular
-- Sondas pogo pin para conexión no invasiva al circuito
+- Sondas tipo multímetro para conexión no invasiva al punto de alimentación
 - Alimentación portátil con LiPo (~6h autonomía)
+- Envía lecturas al backend por WiFi cada segundo
 
 ---
 
@@ -112,7 +114,7 @@ API REST completamente funcional y dockerizada.
 | Base de datos | PostgreSQL (SQLAlchemy async) |
 | Infraestructura MVP | Docker + laptop + ngrok |
 | Infraestructura producción | AWS EC2 + RDS + S3 |
-| Comunicación IoT | BLE (Bluetooth Low Energy) |
+| Comunicación IoT | WiFi (ESP32 → Backend directo) · BLE futuro |
 
 ---
 
