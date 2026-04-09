@@ -80,6 +80,28 @@ graph TD
 
 ---
 
+## Modos de operación
+
+El dispositivo soporta dos modos según el caso de uso:
+
+### Modo portátil (MVP)
+El técnico lleva el dispositivo al circuito, conecta las sondas, toma la foto con la app y hace el diagnóstico. Se alimenta con batería LiPo. Lecturas cada **1 segundo** para monitoreo en tiempo real.
+
+### Modo fijo (industrial)
+El módulo se instala permanentemente en el tablero o panel eléctrico. Se alimenta directo de la red (sin batería). Monitorea 24/7 de forma autónoma. El intervalo de lecturas es **configurable** desde la app:
+
+| Intervalo | Caso de uso |
+|---|---|
+| 1 segundo | Diagnóstico activo / portátil |
+| 1 minuto | Monitoreo continuo ligero |
+| 1 hora | Tendencias a largo plazo / modo fijo industrial |
+
+> En modo fijo se elimina la batería LiPo y el TP4056. El ESP32 se alimenta con un regulador desde la fuente de la instalación (5V o 3.3V según disponibilidad).
+
+El software (backend, app, alertas) es idéntico en ambos modos. Solo cambia el intervalo de muestreo y la fuente de alimentación del hardware.
+
+---
+
 ## Mapa de pines ESP32-S3
 
 | Pin ESP32-S3 | Función | Conectado a |
@@ -156,17 +178,22 @@ El perfil se selecciona desde la app. El hardware no cambia, solo cambian los um
 
 ## Comunicación ESP32 → Backend
 
-El ESP32 envía las lecturas directamente al backend por **WiFi** (HTTP POST cada segundo). La app consulta las lecturas al backend, no al ESP32 directamente. BLE queda como feature futuro para entornos sin WiFi.
+El ESP32 envía las lecturas directamente al backend por **WiFi** (HTTP POST). El intervalo es configurable desde la app según el modo de operación:
+
+- **Modo portátil:** cada 1 segundo (diagnóstico en tiempo real)
+- **Modo fijo industrial:** cada 1 minuto o cada hora (monitoreo continuo de tendencias)
 
 ```
 ESP32-S3
-   ↓ WiFi (HTTP POST /lecturas cada 1s)
+   ↓ WiFi (HTTP POST /lecturas — intervalo configurable)
 Backend FastAPI
    ↓
 PostgreSQL
    ↓
 App Flutter (consulta al backend)
 ```
+
+BLE queda como feature futuro para entornos sin WiFi.
 
 ---
 

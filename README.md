@@ -97,8 +97,8 @@ API REST completamente funcional y dockerizada.
 - MPU6050 — vibración y aceleración
 - OLED 0.96" SSD1306 — pantalla local sin necesidad del celular
 - Sondas tipo multímetro para conexión no invasiva al punto de alimentación
-- Alimentación portátil con LiPo (~6h autonomía)
-- Envía lecturas al backend por WiFi cada segundo
+- **Modo portátil:** alimentación con LiPo (~6h autonomía), lecturas cada segundo
+- **Modo fijo industrial:** alimentación directa de la red, monitoreo 24/7, intervalo configurable (1min - 1h)
 
 ---
 

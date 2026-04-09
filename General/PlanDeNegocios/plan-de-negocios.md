@@ -72,7 +72,7 @@ Venta directa del dispositivo. El software va incluido sin costo adicional.
 ---
 
 ### Tier 2 — Empresa / Planta industrial (B2B Cloud)
-Para empresas que quieren múltiples técnicos y dispositivos con gestión centralizada. Aquí sí aplica un modelo de licencia porque el valor es claro y medible.
+Para empresas que quieren múltiples técnicos y dispositivos con gestión centralizada. El dispositivo puede usarse en modo portátil (técnico lo lleva al circuito) o en **modo fijo** (instalado permanentemente en tableros y paneles, monitoreando 24/7 de forma autónoma). Aquí sí aplica un modelo de licencia porque el valor es claro y medible.
 
 | Plan | Incluye | Precio estimado |
 |---|---|---|
