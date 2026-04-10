@@ -122,23 +122,23 @@ API REST completamente funcional y dockerizada.
 
 | Componente | Estado |
 |---|---|
-| Modelo ARGOS (YOLOv8n → TFLite) | ✅ Entrenado y exportado |
-| Backend FastAPI completo | ✅ Implementado y probado |
-| Auth JWT | ✅ Probado |
-| Lecturas + Alertas automáticas | ✅ Probadas |
-| Diagnósticos + RAG + LLM | ✅ Implementado — pendiente probar con Ollama activo |
-| Chat streaming | ✅ Implementado |
-| App Flutter | ⏳ Pendiente |
-| Módulo ESP32 | ⏳ Pendiente |
-| Integración ARGOS en Flutter | ⏳ Pendiente |
+| Modelo ARGOS (YOLOv8n → TFLite) | Entrenado y exportado |
+| Backend FastAPI completo | Implementado y probado |
+| Auth JWT | Probado |
+| Lecturas + Alertas automáticas | Probadas |
+| Diagnósticos + RAG + LLM | Implementado — pendiente probar con Ollama activo |
+| Chat streaming | Implementado |
+| App Flutter | Pendiente |
+| Módulo ESP32 | Pendiente |
+| Integración ARGOS en Flutter | Pendiente |
 
 ---
 
 ## Estructura del repositorio
 
 ```
-📁 Desarollo/
-├── 📁 backend/                     — API FastAPI (Docker listo para correr)
+Desarollo/
+├── backend/                     — API FastAPI (Docker listo para correr)
 │   ├── main.py
 │   ├── docker-compose.yml
 │   ├── .env.example
@@ -146,11 +146,11 @@ API REST completamente funcional y dockerizada.
 │   ├── routers/                    — Endpoints (auth, dispositivos, lecturas, chat...)
 │   ├── schemas/                    — Validación Pydantic
 │   └── services/                   — Lógica de negocio (LLM, alertas)
-└── 📁 Modelo_IA_TensorFlowLite/
+└── Modelo_IA_TensorFlowLite/
     └── data.yaml                   — Clases del modelo ARGOS
 
-📁 General/                         — Documentación de diseño
-├── App/                            — Pantallas, navegación, BLE
+General/                         — Documentación de diseño
+├── App/                            — Pantallas, navegación
 ├── Backend/                        — Endpoints, servicios, DB
 ├── BaseDeDatos/                    — Esquema PostgreSQL completo
 ├── Circuito/                       — Hardware ESP32, sensores, pines

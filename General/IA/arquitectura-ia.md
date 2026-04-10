@@ -8,8 +8,8 @@ El sistema utiliza dos modelos de IA con responsabilidades distintas:
 
 | Modelo | Tipo | Dónde corre | Función |
 |---|---|---|---|
-| YOLOv8n | Visión artificial (detección de objetos) | Celular (on-device) | Identificar componentes electrónicos en la foto |
-| Llama 3.2 3B / Mistral 7B | LLM (lenguaje) | Servidor local → AWS | Analizar variables eléctricas y generar recomendaciones |
+| YOLOv8n (ARGOS) | Visión artificial (detección de objetos) | Celular (on-device) | Identificar componentes electrónicos en la foto |
+| qwen3.5:9b / Claude Haiku | LLM (lenguaje) | Servidor local → AWS | Analizar variables eléctricas y generar recomendaciones |
 
 ---
 
@@ -23,7 +23,7 @@ flowchart TD
     D --> E[App envía al servidor:\n- Lista de componentes\n- Lecturas ESP32\nvoltaje corriente temp vibración]
     E --> F[FastAPI\nservidor local o AWS]
     F --> G[Guarda en\nPostgreSQL]
-    F --> H[Ollama LLM\nLlama 3.2 o Mistral 7B]
+    F --> H[Ollama LLM\nqwen3.5:9b]
     H --> I[Genera recomendaciones\nde mantenimiento]
     I --> F
     F --> J[Respuesta estructurada\na la app]

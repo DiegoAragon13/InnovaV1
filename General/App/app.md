@@ -127,9 +127,9 @@ Mini chat contextual donde el técnico puede hacer preguntas sobre el dispositiv
   - "¿Cuándo fue la última alerta crítica?"
 - Historial de conversación guardado en DB por dispositivo
 
----
+### Mis Dispositivos
 - Lista de módulos ESP32 vinculados a la cuenta
-- Botón "Agregar dispositivo" → inicia escaneo BLE
+- Botón "Agregar dispositivo" → el usuario ingresa el nombre y la IP o MAC del ESP32
 - Cada dispositivo muestra: nombre, estado de conexión, último diagnóstico
 - Opción para renombrar o eliminar un dispositivo
 

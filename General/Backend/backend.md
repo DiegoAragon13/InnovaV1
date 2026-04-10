@@ -269,18 +269,18 @@ alembic
 
 | Componente | Estado |
 |---|---|
-| Modelos ORM (DB) | ✅ Implementado |
-| Auth (registro, login, refresh, logout) | ✅ Implementado y probado |
-| Dispositivos CRUD | ✅ Implementado y probado |
-| Lecturas (recibir + agregadas) | ✅ Implementado y probado |
-| Alertas (listar + marcar vista) | ✅ Implementado y probado |
-| Diagnósticos | ✅ Implementado y probado |
-| Chat con LLM streaming | ✅ Implementado |
-| LLM service (Ollama) | ✅ Implementado — pendiente probar con modelo activo |
-| Estadísticas | ⏳ Pendiente |
-| Perfiles de voltaje custom | ⏳ Pendiente |
-| Jobs de agregación (APScheduler) | ⏳ Pendiente |
-| Subida de fotos | ⏳ Pendiente |
+| Modelos ORM (DB) | Implementado |
+| Auth (registro, login, refresh, logout) | Implementado y probado |
+| Dispositivos CRUD | Implementado y probado |
+| Lecturas (recibir + agregadas) | Implementado y probado |
+| Alertas (listar + marcar vista) | Implementado y probado |
+| Diagnósticos | Implementado y probado |
+| Chat con LLM streaming | Implementado |
+| LLM service (Ollama) | Implementado — pendiente probar con modelo activo |
+| Estadísticas | Pendiente |
+| Perfiles de voltaje custom | Pendiente |
+| Jobs de agregación (APScheduler) | Pendiente |
+| Subida de fotos | Pendiente |
 
 ## Pendientes
 

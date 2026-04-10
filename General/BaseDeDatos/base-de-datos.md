@@ -21,7 +21,7 @@ erDiagram
         uuid id PK
         uuid user_id FK
         string nombre
-        string ble_mac_address
+        string mac_address
         string firmware_version
         timestamp ultimo_diagnostico
         timestamp created_at
@@ -147,7 +147,7 @@ Módulos ESP32-S3 vinculados a un usuario.
 | id | UUID PK | Identificador único |
 | user_id | UUID FK → users | Dueño del dispositivo |
 | nombre | VARCHAR(100) | Nombre personalizado (ej. "Módulo Taller 1") |
-| ble_mac_address | VARCHAR(17) UNIQUE | Dirección MAC BLE del ESP32 |
+| mac_address | VARCHAR(17) UNIQUE | Dirección MAC WiFi del ESP32 |
 | firmware_version | VARCHAR(20) | Versión del firmware instalado |
 | ultimo_diagnostico | TIMESTAMP | Fecha del último diagnóstico realizado |
 | created_at | TIMESTAMP | Fecha de vinculación |

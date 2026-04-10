@@ -176,7 +176,7 @@ graph TD
 
 ### Datos en tránsito
 - HTTPS obligatorio en todos los endpoints
-- BLE con pairing seguro entre app y ESP32
+- WiFi con red segura (WPA2/WPA3) entre ESP32 y router
 - Certificados SSL/TLS gestionados por AWS ACM (gratis)
 
 ### Datos en reposo
@@ -195,8 +195,8 @@ graph TD
 | Logs | CloudWatch para auditoría de accesos |
 
 ### ESP32
-- Comunicación BLE con pairing por PIN
-- El dispositivo solo acepta comandos del usuario autenticado
+- El dispositivo se conecta al backend por WiFi con HTTPS
+- Solo acepta comandos del usuario autenticado mediante token JWT
 - Firmware con OTA (Over The Air) para actualizaciones de seguridad
 
 ---

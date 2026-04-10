@@ -178,7 +178,7 @@ Fracttal es un sistema de gestión de mantenimiento (CMMS) con sus propios dispo
 ### Tecnologías Emergentes
 - Visión artificial con YOLOv8 on-device
 - LLM para generación de recomendaciones (Ollama / AWS Bedrock)
-- IoT con ESP32-S3 y comunicación BLE
+- IoT con ESP32-S3 y comunicación WiFi
 - Arquitectura cloud-ready en AWS
 
 ### Impacto Social
