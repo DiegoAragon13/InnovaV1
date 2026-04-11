@@ -189,6 +189,21 @@ El modelo principal es venta de hardware con margen. El técnico compra el dispo
 
 ---
 
+## Equipo
+
+| Integrante | Rol |
+|---|---|
+| Diego Aragón | Líder técnico |
+| Michelle de la Fuente | Líder de electrónica |
+| Dulce | Diseño y lógica |
+| Kevin | Por definir |
+| — | Por definir |
+
+**Asesor:** Ing. Carlos Valenzuela
+**Asesor:** Por definir
+
+---
+
 ## Pendientes globales
 
 - [ ] Desarrollar app Flutter
