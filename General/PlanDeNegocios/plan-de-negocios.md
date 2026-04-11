@@ -57,7 +57,9 @@ Sistema portátil de diagnóstico y mantenimiento preventivo de placas electrón
 
 ## 5. Modelo de negocio
 
-El modelo principal se basa en **venta de hardware con margen** y **licenciamiento B2B**, evitando depender de suscripciones de consumidor que son difíciles de sostener en este mercado.
+El modelo se basa en **venta de hardware con margen** como punto de entrada, con una capa de **servicios SaaS** para empresas que necesitan más. El hardware es parte del valor central — sin el módulo ESP32 no hay monitoreo eléctrico en tiempo real. El software básico va incluido con el dispositivo; las funciones avanzadas (historial en la nube, múltiples dispositivos, reportes, API) son el componente SaaS de los tiers superiores.
+
+En resumen: el hardware abre la puerta, el software retiene al cliente.
 
 ### Tier 1 — Técnico / Taller independiente
 Venta directa del dispositivo. El software va incluido sin costo adicional.
