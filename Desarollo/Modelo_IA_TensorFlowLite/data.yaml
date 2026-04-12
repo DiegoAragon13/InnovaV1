@@ -1,58 +1,58 @@
 names:
-- '20'
-- '21'
-- '22'
-- '23'
-- '24'
-- '25'
-- '26'
-- '27'
-- '28'
-- '29'
-- '30'
-- '31'
-- '32'
-- '33'
-- '34'
-- '35'
-- '36'
-- '37'
-- '38'
-- '39'
-- '40'
-- '41'
-- '42'
-- '43'
-- '44'
-- '45'
-- '46'
-- '47'
-- '48'
-- '49'
-- '50'
-- '51'
-- '52'
-- '53'
-- '54'
-- '55'
-- '56'
-- '57'
-- '58'
-- '59'
-- '60'
+- Capacitor electrolítico        # 20
+- Fusible de vidrio               # 21
+- Portafusibles                   # 22
+- Módulo SIM800L                  # 23
+- Sensor de gas                   # 24
+- Disipador de calor              # 25
+- Varistor                        # 26
+- DHT11                           # 27
+- Switch                          # 28
+- Zócalo para CI                  # 29
+- CI                              # 30
+- MOSFET                          # 31
+- Infrarrojo                      # 32
+- Inductor de potencia            # 33
+- Teclado matricial               # 34
+- Pantalla LCD                    # 35
+- Fotocelda                       # 36
+- LED                             # 37
+- Capacitor cerámico de disco     # 38
+- Condensador cerámico            # 39
+- TO-220                          # 40
+- PIR                             # 41
+- Driver L298N                    # 42
+- Termistor NTC MF58              # 43
+- Pantalla LCD Waveshare          # 44
+- Conector                        # 45
+- Pulsador                        # 46
+- Módulo RFID RC522               # 47
+- Panel solar                     # 48
+- Relay                           # 49
+- Resistencia                     # 50
+- Switch balancín                 # 51
+- Servomotor                      # 52
+- Sensor de humedad YL38          # 53
+- Ultrasónico                     # 54
+- IR TCRT5000                     # 55
+- Pushbutton                      # 56
+- Potenciómetro                   # 57
+- Potenciómetro cilíndrico        # 58
+- Sensor nivel de agua            # 59
+- Diodo Zener                     # 60
 - Arduino
 - Arduino Mega
-- Baterias 9v
-- Baterisa 1.5 v
+- Batería 9V
+- Batería 1.5V
 - Capacitor
-- Capacitor electrolitico
+- Capacitor electrolítico
 - Diodo
 - Driver de motor L298N
-- Esp32
-- Esp32 devmodule
+- ESP32
+- ESP32 DevModule
 - Motor DC
 - Protoboard
-- baterias 18650
+- Batería 18650
 - battery
 - button
 - buzzer
