@@ -58,6 +58,8 @@ Modelo YOLOv8n entrenado desde cero para detectar componentes electrónicos dire
 - Exportado a TFLite float32 (12 MB) para Flutter con `tflite_flutter`
 - Detecta: resistencias, capacitores, LEDs, transistores, ICs, diodos, buzzers, relays, módulos Arduino, ESP32, y más
 
+**ARGOS Pro (opcional, Tier 2):** la foto se envía a Gemini Vision para un análisis más profundo — valor de resistencias por código de colores, referencia de CIs, datasheet. Requiere conexión a internet y consume créditos de API.
+
 ### RAG — Contexto para el LLM
 Antes de enviar cualquier pregunta al LLM, el backend consulta la DB y construye automáticamente un contexto con información real del dispositivo:
 
@@ -199,6 +201,44 @@ El modelo principal es venta de hardware con margen. El técnico compra el dispo
 
 **Asesor:** Ing. Carlos Valenzuela
 **Asesor:** Por definir
+
+---
+
+## Feature extra — Análisis de Weibull (si el tiempo lo permite)
+
+Si el desarrollo avanza bien antes de la etapa local, se planea integrar análisis de Weibull para elevar el nivel predictivo del sistema.
+
+### Qué es
+
+El análisis de Weibull es un modelo estadístico que estima la probabilidad de falla de un componente en función del tiempo y su historial de operación. Es ampliamente usado en ingeniería de confiabilidad industrial.
+
+### Cómo funcionaría en el sistema
+
+Con el historial acumulado de lecturas por dispositivo (voltaje, corriente, temperatura, vibración), el backend calcularía la distribución de Weibull para cada variable y estimaría la vida útil restante del circuito:
+
+```
+Historial de lecturas (PostgreSQL)
+        ↓
+Servicio de Weibull (scipy.stats.weibull_min)
+        ↓
+Parámetros β (forma) y η (escala)
+        ↓
+Probabilidad de falla en los próximos N días
+        ↓
+Alerta predictiva: "Este circuito tiene 78% de probabilidad de falla en 15 días"
+```
+
+### Diferencia con las alertas actuales
+
+| Alerta actual | Con Weibull |
+|---|---|
+| "El voltaje está fuera de rango ahora" | "Basado en el historial, este componente fallará en ~15 días" |
+| Reactiva al momento | Predictiva con horizonte de tiempo |
+| Sin contexto histórico | Aprende del comportamiento del dispositivo |
+
+### Requisito
+
+Necesita historial acumulado de varios ciclos de operación para ser estadísticamente válido. Para el MVP se puede demostrar con datos sintéticos realistas.
 
 ---
 

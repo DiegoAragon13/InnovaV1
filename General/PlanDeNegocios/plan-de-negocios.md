@@ -172,6 +172,7 @@ Fracttal es un sistema de gestión de mantenimiento (CMMS) con sus propios dispo
 - Enfoque preventivo vs reactivo: el sistema anticipa fallas, no solo las detecta
 - Historial y trazabilidad: genera documentación de mantenimiento automáticamente
 - Escalable: de protoboard a PCB, de servidor local a AWS, de app a plataforma SaaS
+- **ARGOS Pro (opcional):** integración con Gemini Vision para detección avanzada — valor de resistencias por código de colores, referencia de CIs, datasheet. Diferenciador del Tier 2.
 
 ---
 
