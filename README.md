@@ -139,26 +139,24 @@ API REST completamente funcional y dockerizada.
 ## Estructura del repositorio
 
 ```
-Desarollo/
-├── backend/                     — API FastAPI (Docker listo para correr)
-│   ├── main.py
-│   ├── docker-compose.yml
-│   ├── .env.example
-│   ├── models/                     — ORM (usuarios, dispositivos, lecturas, etc.)
-│   ├── routers/                    — Endpoints (auth, dispositivos, lecturas, chat...)
-│   ├── schemas/                    — Validación Pydantic
-│   └── services/                   — Lógica de negocio (LLM, alertas)
-└── Modelo_IA_TensorFlowLite/
-    └── data.yaml                   — Clases del modelo ARGOS
+Desarrollo/
+├── backend/              — API FastAPI (Docker listo para correr)
+├── app/                  — App Flutter (pendiente)
+├── firmware/             — Firmware ESP32-S3 (pendiente)
+└── ARGOS/                — Modelo de visión artificial
+    ├── v2/               — Modelo v2 + script de prueba
+    ├── v3/               — Modelo v3 + script de prueba (activo)
+    ├── ejemplos/          — Imágenes de prueba
+    └── resultados/        — Imágenes con detecciones (ignoradas por git)
 
-General/                         — Documentación de diseño
-├── App/                            — Pantallas, navegación
-├── Backend/                        — Endpoints, servicios, DB
-├── BaseDeDatos/                    — Esquema PostgreSQL completo
-├── Circuito/                       — Hardware ESP32, sensores, pines
-├── Escalabilidad/                  — Arquitectura AWS por etapas
-├── IA/                             — ARGOS + RAG + LLM
-└── PlanDeNegocios/                 — Modelo de negocio, mercado, roadmap
+General/                  — Documentación de diseño
+├── App/                  — Pantallas, navegación, UX
+├── Backend/              — Endpoints, servicios
+├── BaseDeDatos/          — Esquema PostgreSQL
+├── Circuito/             — Hardware ESP32, sensores, pines
+├── Escalabilidad/        — Arquitectura AWS
+├── IA/                   — ARGOS + RAG + LLM
+└── PlanDeNegocios/       — Modelo de negocio, análisis competitivo
 ```
 
 ---
@@ -166,7 +164,7 @@ General/                         — Documentación de diseño
 ## Cómo correr el backend
 
 ```bash
-cd Desarollo/backend
+cd Desarrollo/backend
 cp .env.example .env
 docker-compose up --build
 ```

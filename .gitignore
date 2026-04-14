@@ -28,3 +28,6 @@ Thumbs.db
 
 # Docker
 *.log
+
+# Resultados de inferencia
+Desarrollo/ARGOS/resultados/

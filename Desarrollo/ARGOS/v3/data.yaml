@@ -1,0 +1,63 @@
+names:
+- Arduino
+- Arduino Mega
+- Baterias 9v
+- Baterisa 1.5 v
+- Capacitor
+- Capacitor ceramico de disco
+- Capacitor electrolitico
+- Condensador ceramico
+- DHT11
+- Diodo zener
+- Driver de motor L298N
+- Esp32
+- Fusible
+- IR TCRT5000
+- Infrarrojo
+- MOSFET
+- Modulo RFID RC522
+- Modulo Sim800l
+- Motor DC
+- PIR
+- Potenciometro cilindrico con la ranura cruz
+- Protoboard
+- Resistencia
+- Sensor de humedad Yl3
+- Sensor nivel de agua
+- ServoMotor
+- Switch
+- Switch balanci
+- TO-22
+- Teclado matricial
+- Termistor Ntc Mf58
+- Varistor
+- baterias 18650
+- battery
+- button
+- buzzer
+- clock
+- connector
+- diode
+- display
+- fotocelda
+- heatsink
+- ic
+- inductor
+- led
+- portafusibles
+- potentiometer
+- relay
+- sensor de gas
+- transistor
+- ultrasonico
+- zocalo para CI
+nc: 52
+roboflow:
+  license: CC BY 4.0
+  project: argos-v1
+  url: https://universe.roboflow.com/diegos-workspace-gobmk/argos-v1/dataset/3
+  version: 3
+  workspace: diegos-workspace-gobmk
+test: ../test/images
+train: ../train/images
+val: ../valid/images
