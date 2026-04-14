@@ -195,10 +195,10 @@ El modelo principal es venta de hardware con margen. El técnico compra el dispo
 - Michelle de la Fuente
 - Dulce
 - Kevin
-- Por definir
+- Felix
 
 **Asesor:** Ing. Carlos Valenzuela
-**Asesor:** Por definir
+**Asesora:** Dra. Rocío
 
 ---
 
