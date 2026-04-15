@@ -32,6 +32,9 @@ app.add_middleware(
 os.makedirs("./uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
 
+# Servir panel web
+app.mount("/panel", StaticFiles(directory="./static", html=True), name="static")
+
 app.include_router(auth.router)
 app.include_router(dispositivos.router)
 app.include_router(lecturas.router)

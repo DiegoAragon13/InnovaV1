@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElectroScan — Panel de pruebas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; min-height: 100vh; }
+  
+  header { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; color: #00d4ff; }
+  header span { font-size: 12px; color: #666; }
+  #status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; margin-left: auto; }
+  #status-dot.ok { background: #22c55e; }
+  #status-label { font-size: 12px; color: #666; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  /* Login */
+  #login-section { max-width: 380px; margin: 80px auto; }
+  #login-section h2 { font-size: 20px; margin-bottom: 24px; color: #fff; }
+  
+  .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .card h3 { font-size: 14px; font-weight: 600; color: #00d4ff; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  input, select, textarea { width: 100%; background: #111; border: 1px solid #333; border-radius: 8px; padding: 10px 12px; color: #e0e0e0; font-size: 14px; margin-bottom: 12px; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: #00d4ff; }
+  textarea { resize: vertical; min-height: 80px; }
+
+  button { background: #00d4ff; color: #000; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+  button:hover { opacity: 0.85; }
+  button.secondary { background: #2a2a2a; color: #e0e0e0; }
+  button.danger { background: #ef4444; color: #fff; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Gauges */
+  .gauges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 700px) { .gauges { grid-template-columns: repeat(2, 1fr); } }
+  .gauge { background: #111; border: 1px solid #2a2a2a; border-radius: 10px; padding: 16px; text-align: center; }
+  .gauge .value { font-size: 28px; font-weight: 700; color: #00d4ff; }
+  .gauge .unit { font-size: 11px; color: #666; margin-top: 2px; }
+  .gauge .label { font-size: 12px; color: #888; margin-top: 6px; }
+  .gauge.warn .value { color: #f59e0b; }
+  .gauge.crit .value { color: #ef4444; }
+
+  /* Estado */
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge.normal { background: #14532d; color: #22c55e; }
+  .badge.advertencia { background: #451a03; color: #f59e0b; }
+  .badge.critico { background: #450a0a; color: #ef4444; }
+
+  /* Chat */
+  #chat-box { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; height: 300px; overflow-y: auto; padding: 12px; margin-bottom: 12px; }
+  .msg { margin-bottom: 12px; }
+  .msg .who { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .msg .text { font-size: 14px; line-height: 1.5; }
+  .msg.user .text { color: #e0e0e0; }
+  .msg.assistant .text { color: #00d4ff; }
+  .msg.assistant .who { color: #00d4ff88; }
+
+  /* Alertas */
+  .alerta { background: #111; border-left: 3px solid #f59e0b; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; }
+  .alerta.critico { border-color: #ef4444; }
+  .alerta .meta { font-size: 11px; color: #666; margin-top: 4px; }
+
+  /* Recomendaciones */
+  .rec-item { background: #111; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; border-left: 3px solid #00d4ff; }
+
+  /* Log */
+  #log { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px; font-size: 12px; color: #666; max-height: 120px; overflow-y: auto; font-family: monospace; }
+  .log-ok { color: #22c55e; }
+  .log-err { color: #ef4444; }
+  .log-info { color: #00d4ff; }
+
+  .row { display: flex; gap: 10px; align-items: flex-start; }
+  .row input { flex: 1; margin-bottom: 0; }
+
+  #app-section { display: none; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #2a2a2a; padding-bottom: 0; }
+  .tab { padding: 10px 18px; font-size: 13px; cursor: pointer; color: #666; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab.active { color: #00d4ff; border-bottom-color: #00d4ff; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  #foto-preview { max-width: 100%; border-radius: 8px; margin-top: 12px; display: none; }
+  .componente-chip { display: inline-block; background: #1a1a1a; border: 1px solid #333; border-radius: 20px; padding: 4px 12px; font-size: 12px; margin: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ElectroScan</h1>
+  <span>Panel de pruebas</span>
+  <div id="status-dot"></div>
+  <span id="status-label">desconectado</span>
+</header>
+
+<!-- LOGIN -->
+<div id="login-section" class="container">
+  <div class="card">
+    <h3>Iniciar sesión</h3>
+    <input id="email" type="email" placeholder="Email" value="test@electroscan.com">
+    <input id="password" type="password" placeholder="Contraseña" value="test1234">
+    <button onclick="login()">Entrar</button>
+    <button class="secondary" style="margin-left:8px" onclick="registro()">Registrarse</button>
+  </div>
+  <div id="log"></div>
+</div>
+
+<!-- APP -->
+<div id="app-section" class="container">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('monitor')">Monitor</div>
+    <div class="tab" onclick="showTab('diagnostico')">Diagnóstico</div>
+    <div class="tab" onclick="showTab('chat')">Chat IA</div>
+    <div class="tab" onclick="showTab('alertas')">Alertas</div>
+    <div class="tab" onclick="showTab('config')">Config</div>
+  </div>
+
+  <!-- MONITOR -->
+  <div id="tab-monitor" class="tab-content active">
+    <div class="gauges">
+      <div class="gauge" id="g-voltaje"><div class="value" id="v-voltaje">—</div><div class="unit">V</div><div class="label">Voltaje</div></div>
+      <div class="gauge" id="g-corriente"><div class="value" id="v-corriente">—</div><div class="unit">A</div><div class="label">Corriente</div></div>
+      <div class="gauge" id="g-temp"><div class="value" id="v-temp">—</div><div class="unit">°C</div><div class="label">Temperatura</div></div>
+      <div class="gauge" id="g-vib"><div class="value" id="v-vib">—</div><div class="unit">g</div><div class="label">Vibración</div></div>
+    </div>
+    <div class="card">
+      <h3>Simular lectura del ESP32</h3>
+      <div class="grid">
+        <div>
+          <input id="sim-v" type="number" step="0.1" placeholder="Voltaje (V)" value="5.1">
+          <input id="sim-i" type="number" step="0.01" placeholder="Corriente (A)" value="0.3">
+        </div>
+        <div>
+          <input id="sim-t" type="number" step="0.1" placeholder="Temperatura (°C)" value="35">
+          <input id="sim-vib" type="number" step="0.001" placeholder="Vibración (g)" value="0.01">
+        </div>
+      </div>
+      <button onclick="enviarLectura()">Enviar lectura</button>
+      <button class="secondary" style="margin-left:8px" onclick="toggleAutoLectura()" id="btn-auto">Auto (off)</button>
+    </div>
+    <div class="card">
+      <h3>Estadísticas del dispositivo</h3>
+      <button onclick="cargarEstadisticas()">Actualizar</button>
+      <div id="stats-content" style="margin-top:12px; font-size:13px; color:#888;">—</div>
+    </div>
+  </div>
+
+  <!-- DIAGNÓSTICO -->
+  <div id="tab-diagnostico" class="tab-content">
+    <div class="card">
+      <h3>Foto de la placa</h3>
+      <input type="file" id="foto-input" accept="image/*" onchange="previewFoto(this)">
+      <img id="foto-preview">
+      <button onclick="subirFoto()" style="margin-top:8px">Subir foto</button>
+      <span id="foto-url" style="font-size:12px; color:#666; margin-left:8px;"></span>
+    </div>
+    <div class="card">
+      <h3>Componentes detectados (editable)</h3>
+      <textarea id="componentes-input" placeholder='["R1","C1","LED1","IC1"]'>["R1","C1","LED1","IC1"]</textarea>
+      <button onclick="crearDiagnostico()">Analizar con LLM</button>
+    </div>
+    <div id="diagnostico-result" style="display:none">
+      <div class="card">
+        <h3>Resultado</h3>
+        <div id="diag-estado" style="margin-bottom:12px"></div>
+        <div id="diag-riesgo" style="margin-bottom:12px; font-size:13px;"></div>
+        <div id="diag-recs"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="tab-chat" class="tab-content">
+    <div class="card">
+      <h3>Chat con el asistente</h3>
+      <div id="chat-box"></div>
+      <div class="row">
+        <input id="chat-input" type="text" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter') enviarChat()">
+        <button onclick="enviarChat()">Enviar</button>
+        <button class="secondary" onclick="limpiarChat()">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTAS -->
+  <div id="tab-alertas" class="tab-content">
+    <div class="card">
+      <h3>Alertas recientes</h3>
+      <button onclick="cargarAlertas()">Actualizar</button>
+      <div id="alertas-list" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="tab-config" class="tab-content">
+    <div class="card">
+      <h3>Dispositivo activo</h3>
+      <select id="dispositivo-select" onchange="seleccionarDispositivo(this.value)"></select>
+      <button onclick="cargarDispositivos()" class="secondary" style="margin-left:8px">Recargar</button>
+    </div>
+    <div class="card">
+      <h3>Nuevo dispositivo</h3>
+      <input id="nuevo-nombre" placeholder="Nombre del dispositivo">
+      <input id="nuevo-mac" placeholder="MAC address (AA:BB:CC:DD:EE:FF)">
+      <button onclick="crearDispositivo()">Crear</button>
+    </div>
+    <div class="card">
+      <h3>Sesión</h3>
+      <p style="font-size:13px; color:#888; margin-bottom:12px">Usuario: <span id="user-email" style="color:#e0e0e0"></span></p>
+      <button class="danger" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div id="log" style="margin-top:20px"></div>
+</div>
+
+<script>
+const API = 'http://localhost:8000'
+let token = localStorage.getItem('token') || ''
+let dispositivoId = localStorage.getItem('dispositivoId') || ''
+let autoInterval = null
+
+// ── Utils ──────────────────────────────────────────────
+function log(msg, type='info') {
+  const el = document.getElementById('log')
+  const line = document.createElement('div')
+  line.className = `log-${type}`
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`
+  el.appendChild(line)
+  el.scrollTop = el.scrollHeight
+}
+
+async function api(method, path, body, isForm=false) {
+  const opts = { method, headers: { Authorization: `Bearer ${token}` } }
+  if (body && !isForm) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body) }
+  if (isForm) opts.body = body
+  const r = await fetch(API + path, opts)
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || r.status) }
+  return r
+}
+
+function setStatus(ok) {
+  document.getElementById('status-dot').className = ok ? 'ok' : ''
+  document.getElementById('status-label').textContent = ok ? 'conectado' : 'desconectado'
+}
+
+// ── Auth ───────────────────────────────────────────────
+async function login() {
+  try {
+    const r = await api('POST', '/auth/login', { email: document.getElementById('email').value, password: document.getElementById('password').value })
+    const d = await r.json()
+    token = d.access_token
+    localStorage.setItem('token', token)
+    document.getElementById('user-email').textContent = document.getElementById('email').value
+    mostrarApp()
+    log('Login exitoso', 'ok')
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+async function registro() {
+  try {
+    const r = await api('POST', '/auth/registro', { email: document.getElementById('email').value, password: document.getElementById('password').value, nombre: 'Usuario' })
+    const d = await r.json()
+    token = d.access_token
+    localStorage.setItem('token', token)
+    mostrarApp()
+    log('Registro exitoso', 'ok')
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+function logout() {
+  token = ''; dispositivoId = ''
+  localStorage.removeItem('token'); localStorage.removeItem('dispositivoId')
+  document.getElementById('app-section').style.display = 'none'
+  document.getElementById('login-section').style.display = 'block'
+  setStatus(false)
+}
+
+async function mostrarApp() {
+  document.getElementById('login-section').style.display = 'none'
+  document.getElementById('app-section').style.display = 'block'
+  setStatus(true)
+  await cargarDispositivos()
+}
+
+// ── Dispositivos ───────────────────────────────────────
+async function cargarDispositivos() {
+  try {
+    const r = await api('GET', '/dispositivos')
+    const lista = await r.json()
+    const sel = document.getElementById('dispositivo-select')
+    sel.innerHTML = lista.map(d => `<option value="${d.id}" ${d.id===dispositivoId?'selected':''}>${d.nombre}</option>`).join('')
+    if (lista.length > 0 && !dispositivoId) seleccionarDispositivo(lista[0].id)
+  } catch(e) { log('Error cargando dispositivos: ' + e.message, 'err') }
+}
+
+function seleccionarDispositivo(id) {
+  dispositivoId = id
+  localStorage.setItem('dispositivoId', id)
+  log(`Dispositivo seleccionado: ${id}`, 'info')
+}
+
+async function crearDispositivo() {
+  try {
+    await api('POST', '/dispositivos', { nombre: document.getElementById('nuevo-nombre').value, ble_mac_address: document.getElementById('nuevo-mac').value })
+    log('Dispositivo creado', 'ok')
+    await cargarDispositivos()
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+// ── Lecturas ───────────────────────────────────────────
+async function enviarLectura() {
+  if (!dispositivoId) return log('Selecciona un dispositivo', 'err')
+  try {
+    const body = {
+      dispositivo_id: dispositivoId,
+      voltaje: parseFloat(document.getElementById('sim-v').value),
+      corriente: parseFloat(document.getElementById('sim-i').value),
+      temperatura: parseFloat(document.getElementById('sim-t').value),
+      vibracion: parseFloat(document.getElementById('sim-vib').value),
+    }
+    const r = await api('POST', '/lecturas', body)
+    const d = await r.json()
+    actualizarGauges(d)
+    log(`Lectura enviada — estado: ${d.estado}`, d.estado === 'normal' ? 'ok' : 'err')
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+function actualizarGauges(d) {
+  const set = (id, val, unit) => {
+    document.getElementById(`v-${id}`).textContent = val !== null ? val.toFixed(2) : '—'
+  }
+  set('voltaje', d.voltaje)
+  set('corriente', d.corriente)
+  set('temp', d.temperatura)
+  set('vib', d.vibracion)
+
+  // Color según estado
+  const g = document.getElementById('g-temp')
+  g.className = 'gauge' + (d.estado === 'critico' ? ' crit' : d.estado === 'advertencia' ? ' warn' : '')
+}
+
+function toggleAutoLectura() {
+  const btn = document.getElementById('btn-auto')
+  if (autoInterval) {
+    clearInterval(autoInterval); autoInterval = null
+    btn.textContent = 'Auto (off)'
+  } else {
+    autoInterval = setInterval(enviarLectura, 2000)
+    btn.textContent = 'Auto (on)'
+  }
+}
+
+async function cargarEstadisticas() {
+  if (!dispositivoId) return
+  try {
+    const r = await api('GET', `/estadisticas/${dispositivoId}`)
+    const d = await r.json()
+    document.getElementById('stats-content').innerHTML = `
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr style="color:#666"><th style="text-align:left;padding:4px">Variable</th><th>Avg</th><th>Min</th><th>Max</th></tr>
+        <tr><td style="padding:4px">Voltaje (V)</td><td style="text-align:center">${d.voltaje_avg?.toFixed(2)??'—'}</td><td style="text-align:center">${d.voltaje_min?.toFixed(2)??'—'}</td><td style="text-align:center">${d.voltaje_max?.toFixed(2)??'—'}</td></tr>
+        <tr><td style="padding:4px">Corriente (A)</td><td style="text-align:center">${d.corriente_avg?.toFixed(3)??'—'}</td><td style="text-align:center">${d.corriente_min?.toFixed(3)??'—'}</td><td style="text-align:center">${d.corriente_max?.toFixed(3)??'—'}</td></tr>
+        <tr><td style="padding:4px">Temperatura (°C)</td><td style="text-align:center">${d.temperatura_avg?.toFixed(1)??'—'}</td><td style="text-align:center">${d.temperatura_min?.toFixed(1)??'—'}</td><td style="text-align:center">${d.temperatura_max?.toFixed(1)??'—'}</td></tr>
+        <tr style="color:#666; font-size:12px"><td colspan="4" style="padding-top:8px">Total lecturas: ${d.total_lecturas} | Alertas: ${d.total_alertas} (${d.alertas_criticas} críticas)</td></tr>
+      </table>`
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+// ── Diagnóstico ────────────────────────────────────────
+function previewFoto(input) {
+  const file = input.files[0]
+  if (!file) return
+  const img = document.getElementById('foto-preview')
+  img.src = URL.createObjectURL(file)
+  img.style.display = 'block'
+}
+
+async function subirFoto() {
+  const input = document.getElementById('foto-input')
+  if (!input.files[0]) return log('Selecciona una foto', 'err')
+  try {
+    const form = new FormData()
+    form.append('file', input.files[0])
+    const r = await api('POST', '/fotos', form, true)
+    const d = await r.json()
+    document.getElementById('foto-url').textContent = d.foto_url
+    log('Foto subida: ' + d.foto_url, 'ok')
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+async function crearDiagnostico() {
+  if (!dispositivoId) return log('Selecciona un dispositivo', 'err')
+  try {
+    let componentes = JSON.parse(document.getElementById('componentes-input').value)
+    const fotoUrl = document.getElementById('foto-url').textContent || null
+    const body = {
+      dispositivo_id: dispositivoId,
+      foto_url: fotoUrl,
+      perfil_voltaje: '5V',
+      voltaje: parseFloat(document.getElementById('sim-v').value) || null,
+      corriente: parseFloat(document.getElementById('sim-i').value) || null,
+      temperatura: parseFloat(document.getElementById('sim-t').value) || null,
+      vibracion: parseFloat(document.getElementById('sim-vib').value) || null,
+      componentes: componentes.map(c => ({ tipo: c, etiqueta: c, confianza_yolo: 0.9, editado_por_usuario: false }))
+    }
+    log('Enviando diagnóstico al LLM...', 'info')
+    const r = await api('POST', '/diagnosticos', body)
+    const d = await r.json()
+    mostrarDiagnostico(d)
+    log('Diagnóstico completado — estado: ' + d.estado_general, d.estado_general === 'normal' ? 'ok' : 'err')
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+function mostrarDiagnostico(d) {
+  document.getElementById('diagnostico-result').style.display = 'block'
+  document.getElementById('diag-estado').innerHTML = `Estado: <span class="badge ${d.estado_general}">${d.estado_general?.toUpperCase()}</span>`
+  document.getElementById('diag-riesgo').textContent = ''
+  document.getElementById('diag-recs').innerHTML = '<p style="color:#666; font-size:12px">Las recomendaciones se generan con el LLM activo.</p>'
+}
+
+// ── Chat ───────────────────────────────────────────────
+async function enviarChat() {
+  if (!dispositivoId) return log('Selecciona un dispositivo', 'err')
+  const input = document.getElementById('chat-input')
+  const msg = input.value.trim()
+  if (!msg) return
+  input.value = ''
+
+  agregarMensaje('user', msg)
+
+  try {
+    const r = await fetch(`${API}/chat/${dispositivoId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ mensaje: msg })
+    })
+    const reader = r.body.getReader()
+    const decoder = new TextDecoder()
+    const msgEl = agregarMensaje('assistant', '')
+    let full = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      full += decoder.decode(value)
+      msgEl.querySelector('.text').textContent = full
+      document.getElementById('chat-box').scrollTop = 9999
+    }
+  } catch(e) { log('Error chat: ' + e.message, 'err') }
+}
+
+function agregarMensaje(rol, texto) {
+  const box = document.getElementById('chat-box')
+  const div = document.createElement('div')
+  div.className = `msg ${rol}`
+  div.innerHTML = `<div class="who">${rol === 'user' ? 'Tú' : 'Asistente'}</div><div class="text">${texto}</div>`
+  box.appendChild(div)
+  box.scrollTop = 9999
+  return div
+}
+
+async function limpiarChat() {
+  if (!dispositivoId) return
+  try {
+    await api('DELETE', `/chat/${dispositivoId}/historial`)
+    document.getElementById('chat-box').innerHTML = ''
+    log('Historial limpiado', 'ok')
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+// ── Alertas ────────────────────────────────────────────
+async function cargarAlertas() {
+  try {
+    const r = await api('GET', '/alertas')
+    const lista = await r.json()
+    const el = document.getElementById('alertas-list')
+    if (!lista.length) { el.innerHTML = '<p style="color:#666; font-size:13px">Sin alertas</p>'; return }
+    el.innerHTML = lista.map(a => `
+      <div class="alerta ${a.severidad}" onclick="marcarVista('${a.id}', this)" style="cursor:pointer; opacity:${a.vista?0.5:1}">
+        <strong>${a.tipo.toUpperCase()}</strong> — ${a.mensaje}
+        <div class="meta">${new Date(a.created_at).toLocaleString()} · ${a.severidad} ${a.vista ? '· visto' : '· click para marcar visto'}</div>
+      </div>`).join('')
+  } catch(e) { log('Error: ' + e.message, 'err') }
+}
+
+async function marcarVista(id, el) {
+  try {
+    await api('PUT', `/alertas/${id}/vista`)
+    el.style.opacity = '0.5'
+  } catch(e) {}
+}
+
+// ── Tabs ───────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'))
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'))
+  document.getElementById(`tab-${name}`).classList.add('active')
+  event.target.classList.add('active')
+  if (name === 'alertas') cargarAlertas()
+  if (name === 'monitor') cargarEstadisticas()
+}
+
+// ── Init ───────────────────────────────────────────────
+if (token) {
+  document.getElementById('user-email').textContent = localStorage.getItem('email') || ''
+  mostrarApp()
+}
+</script>
+</body>
+</html>
