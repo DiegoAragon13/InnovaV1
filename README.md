@@ -36,14 +36,15 @@ flowchart TD
     DB[(PostgreSQL)]
     LLM[Ollama LLM\nqwen3.5:9b]
 
-    ESP -->|WiFi| APP
+    ESP -->|WiFi · HTTP POST /lecturas| BACKEND
     APP --> ARGOS
     ARGOS --> TECNICO
-    TECNICO -->|Lista validada + lecturas ESP32| BACKEND
+    TECNICO -->|Lista validada + dispositivo_id| BACKEND
     BACKEND <-->|Lecturas · alertas · historial · perfil| DB
     BACKEND -->|Contexto + prompt| LLM
     LLM -->|Recomendaciones · chat streaming| BACKEND
     BACKEND -->|Respuesta| APP
+    APP -->|Consulta lecturas en tiempo real| BACKEND
 ```
 
 ---
