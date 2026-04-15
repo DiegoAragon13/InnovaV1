@@ -235,3 +235,33 @@ Si el técnico sí conoce el voltaje:
 - [ ] Esquemático visual en Fritzing
 - [ ] Definir batería LiPo final y agregar en lista de componentes
 - [ ] Implementar lógica de baseline automático en firmware ESP32
+
+---
+
+## Propuestas para Michelle y Felix — a valorar
+
+Estas ideas pueden fortalecer el hardware para el concurso. Michelle y Felix son los responsables de evaluar viabilidad técnica y decidir si las implementan.
+
+### Alimentación directa en modo fijo
+
+En modo fijo el módulo se instala permanentemente en un tablero industrial. En ese contexto la batería no tiene sentido — el tablero ya tiene alimentación disponible (5V, 12V o 24V según la instalación).
+
+**Propuesta:** diseñar el módulo con dos opciones de alimentación:
+- **Modo portátil:** batería LiPo + TP4056 (como está actualmente)
+- **Modo fijo:** entrada directa de línea con regulador a 3.3V (elimina batería y TP4056)
+
+Esto resuelve el problema del consumo de la OLED en modo fijo — si hay línea directa, la OLED puede estar siempre activa mostrando lecturas sin preocuparse por la batería.
+
+Para modo fijo solo se necesita un regulador adicional (AMS1117-3.3 o similar) que tome los 5V/12V del tablero. Ya está en el diseño actual para el modo portátil, sería adaptarlo.
+
+### OLED con activación por botón (modo portátil)
+
+Para ahorrar batería en modo portátil, la OLED podría apagarse por default y activarse solo cuando el técnico presiona un botón. Reduce el consumo de ~20mA a 0mA en reposo.
+
+### Nombre propio para el módulo
+
+Darle nombre al hardware (igual que ARGOS tiene nombre) lo hace más presentable ante el jurado y refuerza la identidad del proyecto. Queda a criterio de Michelle y Felix proponer algo.
+
+### PCB o carcasa impresa en 3D
+
+Para la presentación del concurso, un protoboard se ve como trabajo en proceso. Una PCB simple o una carcasa impresa en 3D con los componentes montados cambia completamente la percepción del jurado y refuerza el argumento de que es un producto real, no solo un experimento.
