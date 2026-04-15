@@ -12,3 +12,4 @@ apscheduler
 python-multipart
 python-dotenv
 alembic
+aiofiles
