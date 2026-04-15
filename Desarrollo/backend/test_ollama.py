@@ -44,7 +44,8 @@ Responde SIEMPRE en JSON con este formato exacto:
   "recomendaciones": ["recomendación 1"]
 }"""},
             {"role": "user", "content": prompt}
-        ]
+        ],
+        options={"think": False}
     )
     try:
         resultado = json.loads(response["message"]["content"])
@@ -79,7 +80,7 @@ def chat_interactivo(voltaje, corriente, temperatura, vibracion, alertas, compon
 
         print("\n Asistente: ", end="", flush=True)
         respuesta_completa = ""
-        for chunk in ollama.chat(model=settings.OLLAMA_MODEL, messages=messages, stream=True):
+        for chunk in ollama.chat(model=settings.OLLAMA_MODEL, messages=messages, stream=True, options={"think": False}):
             texto = chunk["message"]["content"]
             print(texto, end="", flush=True)
             respuesta_completa += texto

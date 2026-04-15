@@ -2,6 +2,10 @@ import json
 import ollama
 from config import settings
 
+# Desactiva el thinking en modelos que lo soportan (ej: qwen3.5)
+# Reduce latencia significativamente sin afectar calidad para este caso de uso
+LLM_OPTIONS = {"think": False}
+
 SYSTEM_PROMPT_DIAGNOSTICO = """Eres un experto en electrónica y mantenimiento de circuitos. 
 Analiza los datos del circuito y genera recomendaciones de mantenimiento preventivo en español.
 Responde SIEMPRE en JSON con este formato exacto:
@@ -32,7 +36,8 @@ Genera el análisis y recomendaciones."""
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT_DIAGNOSTICO},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            options=LLM_OPTIONS
         )
         return json.loads(response["message"]["content"])
     except Exception:
@@ -51,6 +56,11 @@ async def chat_stream(historial: list, pregunta: str, contexto: dict):
     messages.extend(historial)
     messages.append({"role": "user", "content": pregunta})
 
-    stream = ollama.chat(model=settings.OLLAMA_MODEL, messages=messages, stream=True)
+    stream = ollama.chat(
+        model=settings.OLLAMA_MODEL,
+        messages=messages,
+        stream=True,
+        options=LLM_OPTIONS
+    )
     for chunk in stream:
         yield chunk["message"]["content"]
