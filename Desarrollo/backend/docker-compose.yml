@@ -24,7 +24,7 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       REFRESH_TOKEN_EXPIRE_DAYS: 30
       OLLAMA_BASE_URL: http://host.docker.internal:11434
-      OLLAMA_MODEL: llama3.2
+      OLLAMA_MODEL: qwen3.5:9b
       FOTO_STORAGE: local
       FOTO_LOCAL_PATH: ./uploads
     depends_on:

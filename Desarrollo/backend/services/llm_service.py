@@ -3,10 +3,7 @@ import asyncio
 import ollama
 from config import settings
 
-# Cliente con URL configurable (necesario en Docker para apuntar al host)
 _client = ollama.Client(host=settings.OLLAMA_BASE_URL)
-
-# Desactiva el thinking en modelos que lo soportan (ej: qwen3.5)
 LLM_OPTIONS = {"think": False}
 
 SYSTEM_PROMPT_DIAGNOSTICO = """Eres un experto en electrónica y mantenimiento de circuitos. 
@@ -21,6 +18,7 @@ Responde SIEMPRE en JSON con este formato exacto:
 SYSTEM_PROMPT_CHAT = """Eres un asistente técnico experto en electrónica y mantenimiento de circuitos.
 Tienes acceso al historial de lecturas y diagnósticos del dispositivo del usuario.
 Responde en español de forma clara y concisa."""
+
 
 async def generar_recomendaciones(contexto: dict) -> dict:
     prompt = f"""Circuito analizado:
@@ -49,6 +47,7 @@ Genera el análisis y recomendaciones."""
     except Exception:
         return {"estado_general": "normal", "componentes_en_riesgo": [], "recomendaciones": []}
 
+
 async def chat_stream(historial: list, pregunta: str, contexto: dict):
     messages = [{"role": "system", "content": SYSTEM_PROMPT_CHAT}]
 
@@ -62,7 +61,7 @@ async def chat_stream(historial: list, pregunta: str, contexto: dict):
     messages.extend(historial)
     messages.append({"role": "user", "content": pregunta})
 
-    # Ejecutar el stream síncrono en un thread para no bloquear el event loop
+    loop = asyncio.get_event_loop()
     queue = asyncio.Queue()
 
     def _stream_worker():
@@ -74,11 +73,12 @@ async def chat_stream(historial: list, pregunta: str, contexto: dict):
                 options=LLM_OPTIONS
             ):
                 texto = chunk["message"]["content"]
-                asyncio.get_event_loop().call_soon_threadsafe(queue.put_nowait, texto)
+                loop.call_soon_threadsafe(queue.put_nowait, texto)
+        except Exception:
+            pass
         finally:
-            asyncio.get_event_loop().call_soon_threadsafe(queue.put_nowait, None)
+            loop.call_soon_threadsafe(queue.put_nowait, None)
 
-    loop = asyncio.get_event_loop()
     loop.run_in_executor(None, _stream_worker)
 
     while True:
