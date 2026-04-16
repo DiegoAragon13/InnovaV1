@@ -1,9 +1,12 @@
 import json
+import asyncio
 import ollama
 from config import settings
 
+# Cliente con URL configurable (necesario en Docker para apuntar al host)
+_client = ollama.Client(host=settings.OLLAMA_BASE_URL)
+
 # Desactiva el thinking en modelos que lo soportan (ej: qwen3.5)
-# Reduce latencia significativamente sin afectar calidad para este caso de uso
 LLM_OPTIONS = {"think": False}
 
 SYSTEM_PROMPT_DIAGNOSTICO = """Eres un experto en electrónica y mantenimiento de circuitos. 
@@ -30,8 +33,8 @@ async def generar_recomendaciones(contexto: dict) -> dict:
 
 Genera el análisis y recomendaciones."""
 
-    try:
-        response = ollama.chat(
+    def _llamar():
+        return _client.chat(
             model=settings.OLLAMA_MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT_DIAGNOSTICO},
@@ -39,13 +42,16 @@ Genera el análisis y recomendaciones."""
             ],
             options=LLM_OPTIONS
         )
+
+    try:
+        response = await asyncio.to_thread(_llamar)
         return json.loads(response["message"]["content"])
     except Exception:
         return {"estado_general": "normal", "componentes_en_riesgo": [], "recomendaciones": []}
 
 async def chat_stream(historial: list, pregunta: str, contexto: dict):
     messages = [{"role": "system", "content": SYSTEM_PROMPT_CHAT}]
-    
+
     if contexto:
         ctx_text = f"""Contexto del dispositivo:
 - Últimas lecturas: V={contexto.get('voltaje')}V, I={contexto.get('corriente')}A, T={contexto.get('temperatura')}°C
@@ -56,11 +62,27 @@ async def chat_stream(historial: list, pregunta: str, contexto: dict):
     messages.extend(historial)
     messages.append({"role": "user", "content": pregunta})
 
-    stream = ollama.chat(
-        model=settings.OLLAMA_MODEL,
-        messages=messages,
-        stream=True,
-        options=LLM_OPTIONS
-    )
-    for chunk in stream:
-        yield chunk["message"]["content"]
+    # Ejecutar el stream síncrono en un thread para no bloquear el event loop
+    queue = asyncio.Queue()
+
+    def _stream_worker():
+        try:
+            for chunk in _client.chat(
+                model=settings.OLLAMA_MODEL,
+                messages=messages,
+                stream=True,
+                options=LLM_OPTIONS
+            ):
+                texto = chunk["message"]["content"]
+                asyncio.get_event_loop().call_soon_threadsafe(queue.put_nowait, texto)
+        finally:
+            asyncio.get_event_loop().call_soon_threadsafe(queue.put_nowait, None)
+
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, _stream_worker)
+
+    while True:
+        chunk = await queue.get()
+        if chunk is None:
+            break
+        yield chunk
